@@ -7,7 +7,6 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Services\UserService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
@@ -15,8 +14,7 @@ class UserController extends Controller
 {
     public function __construct(
         protected UserService $userService
-    )
-    {
+    ) {
     }
 
     public function index(): AnonymousResourceCollection
@@ -39,21 +37,8 @@ class UserController extends Controller
         return UserResource::make($user);
     }
 
-    public function edit($id): UserResource
-    {
-        $user = $this->userService->find($id);
-        return UserResource::make($user);
-    }
-
     public function update(UpdateUserRequest $request, $id): UserResource
     {
-//        $data = $request->validate([
-//            'name' => 'sometimes|min:2|max:255',
-//            'email' => 'sometimes|unique:users,email,' . $id,
-//            'password' => 'sometimes|confirmed',
-//            'avatar' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
-//        ]);
-
         $data = $request->validated();
         $user = $this->userService->update($data, $id);
         return UserResource::make($user);
