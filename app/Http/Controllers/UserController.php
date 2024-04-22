@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
-use App\Services\UserService;
+use App\Http\Services\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -23,17 +25,11 @@ class UserController extends Controller
         return UserResource::collection($users);
     }
 
-    public function store(Request $request): UserResource
+    public function store(StoreUserRequest $request): UserResource
     {
-        $data = $request->validate([
-            'name' => 'required|min:2|max:255',
-            'email' => 'required|unique:users,email',
-            'password' => 'required|confirmed',
-            'avatar' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
-        ]);
 
+        $data = $request->validated();
         $user = $this->userService->create($data);
-
         return UserResource::make($user);
     }
 
@@ -49,15 +45,16 @@ class UserController extends Controller
         return UserResource::make($user);
     }
 
-    public function update(Request $request, $id): UserResource
+    public function update(UpdateUserRequest $request, $id): UserResource
     {
-        $data = $request->validate([
-            'name' => 'sometimes|min:2|max:255',
-            'email' => 'sometimes|unique:users,email,' . $id,
-            'password' => 'sometimes|confirmed',
-            'avatar' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
-        ]);
+//        $data = $request->validate([
+//            'name' => 'sometimes|min:2|max:255',
+//            'email' => 'sometimes|unique:users,email,' . $id,
+//            'password' => 'sometimes|confirmed',
+//            'avatar' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+//        ]);
 
+        $data = $request->validated();
         $user = $this->userService->update($data, $id);
         return UserResource::make($user);
     }
