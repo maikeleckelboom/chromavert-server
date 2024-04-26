@@ -27,9 +27,9 @@ class StoreUserRequest extends FormRequest
         return [
             'name' => ['required', 'string', "min:2", 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'password' => ['required'],
-            'avatar' => ['sometimes', 'nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
-            'username' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'password' => ['required', 'string', Password::defaults()],
+            'avatar' => ['sometimes', 'nullable', 'url', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'username' => ['sometimes', 'nullable', 'string', 'min:2', 'max:255'],
         ];
     }
 }

@@ -26,33 +26,27 @@ class AuthProviderService
     public function findOrCreate(ProviderUser $providerUser, $provider): User
     {
 
-        // If the user is already authenticated, connect the provider
         if (Auth::check()) {
             $user = User::findOrFail(auth()->id());
             $this->connect($user, $providerUser, $provider);
             return $user;
         }
 
-        // Find or create the provider
         $authProvider = $this->firstOrNew($provider, $providerUser);
 
-        // If the provider exists, return the user
         if ($authProvider->exists) {
             return User::findOrFail($authProvider->user_id);
         }
 
-        // Start by finding the user by email
         $user = User::firstOrNew([
             'email' => $providerUser->getEmail(),
         ]);
 
-        // If the user does not exist, create it
         if (!$user->exists) {
             $user = $this->inheritUserAttributes($user, $providerUser);
             $user->save();
         }
 
-        // Associate the user with the provider
         $authProvider->user()->associate($user);
         $authProvider->save();
 
