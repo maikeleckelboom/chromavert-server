@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\AuthProviderController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -35,3 +36,9 @@ Route::post('/email/verification-notification', [EmailVerificationNotificationCo
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
                 ->middleware('auth')
                 ->name('logout');
+
+Route::get('auth/{provider}', [AuthProviderController::class, 'redirect'])
+                ->name('auth.provider.redirect');
+
+Route::get('auth/{provider}/callback', [AuthProviderController::class, 'callback'])
+                ->name('auth.provider.callback');

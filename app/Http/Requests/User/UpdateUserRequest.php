@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\User;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 
 class UpdateUserRequest extends FormRequest
 {
@@ -24,10 +25,10 @@ class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'sometimes|min:2|max:255',
-            'email' => 'sometimes|unique:users,email,' . $this->route('id'),
-            'password' => 'sometimes|confirmed',
-            'avatar' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            'name' => ['sometimes', 'min:2', 'max:255'],
+            'email' => ['sometimes', 'unique:users,email,' . $this->route('id')],
+            'password' => ['sometimes', 'confirmed', Password::defaults()],
+            'avatar' => ['sometimes', 'nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048']
         ];
     }
 }

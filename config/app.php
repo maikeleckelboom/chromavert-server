@@ -39,7 +39,7 @@ return [
     |
     */
 
-    'debug' => (bool) env('APP_DEBUG', false),
+    'debug' => (bool)env('APP_DEBUG', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -123,4 +123,21 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | SPA / FRONTEND_URL Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Routes to redirect to after certain actions
+    |
+    */
+
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost'),
+
+    'redirects' => [
+        'on_logout' => env('REDIRECT_ON_LOGOUT', '/login'),
+        'on_auth_only' => env('REDIRECT_ON_AUTH_ONLY', '/login'),
+        'on_login' => env('REDIRECT_ON_LOGIN', '/settings/access'),
+        'on_guest_only' => env('REDIRECT_ON_GUEST_ONLY', '/settings/access'),
+    ],
 ];

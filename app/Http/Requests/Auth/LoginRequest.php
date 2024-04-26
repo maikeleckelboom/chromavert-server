@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\AuthProvider;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -35,13 +36,20 @@ class LoginRequest extends FormRequest
     /**
      * Attempt to authenticate the request's credentials.
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+
+        if ($this->isRegisteredWithAuthProvider() && !$this->hasPassword()) {
+            throw ValidationException::withMessages([
+                'email' => 'This email is associated with an external provider',
+            ]);
+        }
+
+        if (!Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -55,11 +63,11 @@ class LoginRequest extends FormRequest
     /**
      * Ensure the login request is not rate limited.
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 
@@ -80,6 +88,22 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->input('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->input('email')) . '|' . $this->ip());
+    }
+
+    /**
+     * Determine if the user has registered with an external provider.
+     */
+    private function isRegisteredWithAuthProvider()
+    {
+        return AuthProvider::where('provider_user_email', $this->input('email'))->exists();
+    }
+
+    /**
+     * Determine if user is trying to authenticate with a password.
+     */
+    private function hasPassword(): bool
+    {
+        return !is_null($this->getPassword());
     }
 }

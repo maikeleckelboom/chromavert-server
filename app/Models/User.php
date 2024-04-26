@@ -3,17 +3,29 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\HasAvatar;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
+use TaylorNetwork\UsernameGenerator\FindSimilarUsernames;
+use TaylorNetwork\UsernameGenerator\GeneratesUsernames;
+use TaylorNetwork\UsernameGenerator\Generator;
+use TaylorNetwork\UsernameGenerator\Support\Exceptions\GeneratorException;
 
 /**
  * @method static create(array $data)
  * @method static findOrFail($id)
+ * @method static firstOrNew(array $array)
  */
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory;
+    use Notifiable;
+    use HasAvatar;
+    use FindSimilarUsernames;
+    use GeneratesUsernames;
 
     /**
      * The attributes that are mass assignable.
@@ -22,6 +34,8 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'username',
+        'avatar',
         'email',
         'password',
     ];
@@ -48,4 +62,11 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+
+    public function authProviders(): HasMany
+    {
+        return $this->hasMany(AuthProvider::class);
+    }
+
 }
