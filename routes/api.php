@@ -6,7 +6,7 @@ use App\Http\Controllers\User\DatabaseSessionsController;
 use App\Http\Controllers\User\RevokeOtherSessionsController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/user', [CurrentUserController::class, 'index']);
 
     Route::get('/user/providers', [AuthProviderController::class, 'index']);
@@ -18,8 +18,4 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::delete('/user', [CurrentUserController::class, 'destroy']);
     Route::put('/user', [CurrentUserController::class, 'update']);
-
-    Route::get('/user/profile', [CurrentUserController::class, 'getProfileInformation']);
-
-
 });
