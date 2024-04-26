@@ -71,16 +71,13 @@ class AuthProviderService
         return $authProvider->delete();
     }
 
-    private function connect(User $user, ProviderUser $providerUser, $provider): bool
+    private function connect(User $user, ProviderUser $providerUser, $provider): void
     {
         $authProvider = $this->firstOrNew($provider, $providerUser);
         $authProvider->user()->associate($user);
         if ($authProvider->save()) {
             $authProvider->touch();
-            return true;
         }
-
-        return false;
     }
 
     private function inheritUserAttributes(User $user, ProviderUser $providerUser): User

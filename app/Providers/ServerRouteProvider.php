@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-class StaticRouteProvider
+class ServerRouteProvider
 {
     public static function getRoute(string $key): string
     {
