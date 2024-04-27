@@ -21,7 +21,10 @@ class AuthProvider extends Model
         'github',
     ];
 
+//    public \Laravel\Socialite\Contracts\User $user;
     public User $user;
+
+    public int $user_id;
 
     protected $fillable = [
         'provider',
@@ -40,8 +43,8 @@ class AuthProvider extends Model
     public function provider(): Attribute
     {
         return new Attribute(
-            get: fn ($value, $attributes) => ucfirst($attributes['provider']),
-            set: fn ($value) => ['provider' => strtolower($value)]
+            get: fn($value, $attributes) => ucfirst($attributes['provider']),
+            set: fn($value) => ['provider' => strtolower($value)]
         );
     }
 
