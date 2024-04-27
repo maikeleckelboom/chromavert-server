@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class EnsurePasswordIsSet
+class EnsurePasswordSet
 {
     /**
      * Handle an incoming request.

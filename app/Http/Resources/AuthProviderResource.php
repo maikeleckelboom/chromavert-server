@@ -16,7 +16,7 @@ class AuthProviderResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'provider' => $this->provider,
+            'name' => $this->provider,
             'user' => UserResource::make([
                 'email' => $this->provider_user_email,
                 'name' => $this->provider_user_name,

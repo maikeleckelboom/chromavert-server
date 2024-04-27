@@ -7,7 +7,7 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 
-class RevokeOtherSessionsController extends Controller
+class DestroyOtherSessionsController extends Controller
 {
     public function __invoke(Request $request): Response
     {

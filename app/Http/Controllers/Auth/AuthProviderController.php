@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Services\AuthProviderService;
 use App\Models\AuthProvider;
-use App\Providers\ServerRouteProvider;
+use App\Providers\RedirectRouteProvider;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +23,7 @@ class AuthProviderController extends Controller
 
     public function disconnect(AuthProviderService $providerService, $id): JsonResponse
     {
-        if ($this->isLastProvider($id)) {
+        if ($this->isLastProvider()) {
             return response()->json([
                 'cause' => 'cannot-disconnect-last-provider',
                 'message' => 'You cannot disconnect the last provider. Create a password to continue.',
@@ -57,7 +57,7 @@ class AuthProviderController extends Controller
         try {
             $user = Socialite::driver($provider)->user();
         } catch (InvalidStateException) {
-            $url = $SPA_URL . ServerRouteProvider::getRoute(Auth::check() ? 'onAuthOnly' : 'onGuestOnly');
+            $url = $SPA_URL . RedirectRouteProvider::getRoute(Auth::check() ? 'onAuthOnly' : 'onGuestOnly');
             return redirect()->to($url . request()->has('error') ? '&error=invalid-state' : '');
         }
 
@@ -69,7 +69,7 @@ class AuthProviderController extends Controller
 
         $authenticatableUser->touch();
 
-        $redirectUrl = $SPA_URL . ServerRouteProvider::getRoute('onLogin');
+        $redirectUrl = $SPA_URL . RedirectRouteProvider::getRoute('onLogin');
 
         return redirect()->to($redirectUrl);
     }

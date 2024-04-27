@@ -37,7 +37,6 @@ class AuthProvider extends Model
         return $this->belongsTo(User::class);
     }
 
-
     public function provider(): Attribute
     {
         return new Attribute(
