@@ -29,6 +29,10 @@ class User extends Authenticatable
     use GeneratesUsernames;
     use SoftDeletes;
 
+//    public string $email;
+//    public string|null $username;
+    private string|null $password;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -40,10 +44,6 @@ class User extends Authenticatable
         'avatar',
         'email',
         'password',
-    ];
-
-    protected $appends = [
-        'password'
     ];
 
     /**
@@ -75,8 +75,8 @@ class User extends Authenticatable
         return $this->hasMany(AuthProvider::class);
     }
 
-    public function hasPassword(): bool
+    public function passwordIsNull(): bool
     {
-        return !is_null($this->password);
+        return is_null($this->password);
     }
 }

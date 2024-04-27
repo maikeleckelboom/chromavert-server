@@ -15,7 +15,6 @@ use Laravel\Socialite\Two\InvalidStateException;
 
 class AuthProviderController extends Controller
 {
-
     private bool $preventAccountLockout = false;
 
     public function index(AuthProviderService $providerService): JsonResponse
@@ -29,21 +28,14 @@ class AuthProviderController extends Controller
         $providerUser = $providerService->find($id)->user;
         $user = User::findOrFail($providerUser->user_id);
 
-        if($user->id !== auth()->id()) {
+        if ($user->id !== auth()->id()) {
             return response()->json(['message' => 'unauthorized'], 403);
         }
 
-        if($this->preventAccountLockout) {
+        $WILL_LOCKOUT = $user->passwordIsNull() && $this->isLastProvider();
+
+        if ($WILL_LOCKOUT && $this->preventAccountLockout) {
             return $this->abortDisconnect();
-        }
-
-        if (
-            $this->isLastProvider() &&
-            !$user->hasPassword()
-        ) {
-
-
-
         }
 
         if ($providerService->disconnect($id)) {

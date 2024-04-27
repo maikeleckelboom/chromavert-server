@@ -25,7 +25,6 @@ class AuthProviderService
 
     public function findOrCreate(ProviderUser $providerUser, $provider): User
     {
-
         if (Auth::check()) {
             $user = User::findOrFail(auth()->id());
             $this->connect($user, $providerUser, $provider);
