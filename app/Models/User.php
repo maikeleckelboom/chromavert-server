@@ -6,6 +6,7 @@ namespace App\Models;
 use App\Traits\HasAvatar;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
@@ -26,6 +27,7 @@ class User extends Authenticatable
     use HasAvatar;
     use FindSimilarUsernames;
     use GeneratesUsernames;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -38,6 +40,10 @@ class User extends Authenticatable
         'avatar',
         'email',
         'password',
+    ];
+
+    protected $appends = [
+        'password'
     ];
 
     /**
@@ -69,4 +75,8 @@ class User extends Authenticatable
         return $this->hasMany(AuthProvider::class);
     }
 
+    public function hasPassword(): bool
+    {
+        return !is_null($this->password);
+    }
 }

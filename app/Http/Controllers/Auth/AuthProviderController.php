@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Services\AuthProviderService;
 use App\Models\AuthProvider;
+use App\Models\User;
 use App\Providers\RedirectRouteProvider;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -15,6 +16,8 @@ use Laravel\Socialite\Two\InvalidStateException;
 class AuthProviderController extends Controller
 {
 
+    private bool $preventAccountLockout = false;
+
     public function index(AuthProviderService $providerService): JsonResponse
     {
         $providers = $providerService->all();
@@ -23,11 +26,24 @@ class AuthProviderController extends Controller
 
     public function disconnect(AuthProviderService $providerService, $id): JsonResponse
     {
-        if ($this->isLastProvider()) {
-            return response()->json([
-                'cause' => 'cannot-disconnect-last-provider',
-                'message' => 'You cannot disconnect the last provider. Create a password to continue.',
-            ], 400);
+        $providerUser = $providerService->find($id)->user;
+        $user = User::findOrFail($providerUser->user_id);
+
+        if($user->id !== auth()->id()) {
+            return response()->json(['message' => 'unauthorized'], 403);
+        }
+
+        if($this->preventAccountLockout) {
+            return $this->abortDisconnect();
+        }
+
+        if (
+            $this->isLastProvider() &&
+            !$user->hasPassword()
+        ) {
+
+
+
         }
 
         if ($providerService->disconnect($id)) {
@@ -85,8 +101,17 @@ class AuthProviderController extends Controller
         return $params;
     }
 
+
     private function isLastProvider(): bool
     {
         return AuthProvider::where('user_id', auth()->id())->count() === 1;
+    }
+
+    private function abortDisconnect(): JsonResponse
+    {
+        return response()->json([
+            'cause' => 'cannot-disconnect-last-provider',
+            'message' => 'You cannot disconnect the last provider. Create a password to continue.',
+        ], 400);
     }
 }

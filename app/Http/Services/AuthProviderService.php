@@ -18,9 +18,9 @@ class AuthProviderService
         return AuthProviderResource::collection($user->authProviders);
     }
 
-    protected function find($id)
+    public function find($id)
     {
-        return AuthProvider::findOrFail($id);
+        return AuthProvider::where('user_id', auth()->id())->findOrFail($id);
     }
 
     public function findOrCreate(ProviderUser $providerUser, $provider): User
