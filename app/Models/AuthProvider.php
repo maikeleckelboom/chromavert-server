@@ -16,12 +16,6 @@ class AuthProvider extends Model
 {
     use HasFactory;
 
-    public const SUPPORTED_PROVIDERS = [
-        'google',
-        'github',
-    ];
-
-//    public \Laravel\Socialite\Contracts\User $user;
     public User $user;
 
     public int $user_id;
@@ -47,5 +41,4 @@ class AuthProvider extends Model
             set: fn($value) => ['provider' => strtolower($value)]
         );
     }
-
 }

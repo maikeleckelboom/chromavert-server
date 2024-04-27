@@ -20,10 +20,12 @@ class UserResource extends JsonResource
         'username' => "string|null",
         'avatar' => "string|null",
         'emailVerified' => "bool",
+        'password' => 'bool',
         'createdAt' => "string",
         'updatedAt' => "string"
     ])] public function toArray(Request $request): array
     {
+        //  parent::toArray($request);
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -33,7 +35,7 @@ class UserResource extends JsonResource
             'emailVerified' => $this->email_verified_at !== null,
             'createdAt' => $this->created_at->format('d M Y H:i'),
             'updatedAt' => $this->updated_at->diffForHumans(),
+            'password' => !is_null($request->user()->password),
         ];
-//        return parent::toArray($request);
     }
 }

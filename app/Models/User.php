@@ -9,11 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Auth;
 use TaylorNetwork\UsernameGenerator\FindSimilarUsernames;
 use TaylorNetwork\UsernameGenerator\GeneratesUsernames;
-use TaylorNetwork\UsernameGenerator\Generator;
-use TaylorNetwork\UsernameGenerator\Support\Exceptions\GeneratorException;
 
 /**
  * @method static create(array $data)
@@ -29,8 +26,6 @@ class User extends Authenticatable
     use GeneratesUsernames;
     use SoftDeletes;
 
-//    public string $email;
-//    public string|null $username;
     private string|null $password;
 
     /**
