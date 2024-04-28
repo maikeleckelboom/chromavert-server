@@ -70,7 +70,7 @@ class User extends Authenticatable
         return $this->hasMany(AuthProvider::class);
     }
 
-    public function passwordIsNull(): bool
+    public function isPasswordNull(): bool
     {
         return is_null($this->password);
     }

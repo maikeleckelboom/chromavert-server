@@ -34,7 +34,7 @@ class AuthProviderService
         $authProvider = $this->firstOrNew($provider, $providerUser);
 
         if ($authProvider->exists) {
-            return $this->find($authProvider->id)->user;
+            return $authProvider->user;
         }
 
         $user = User::firstOrNew([
@@ -54,7 +54,7 @@ class AuthProviderService
 
     public function firstOrNew(string $provider, ProviderUser $providerUser): AuthProvider
     {
-        return AuthProvider::firstOrNew([
+        $authProvider = AuthProvider::firstOrNew([
             'provider' => $provider,
             'provider_user_id' => $providerUser->getId(),
             'provider_user_name' => $providerUser->getName(),
@@ -62,6 +62,8 @@ class AuthProviderService
             'provider_user_avatar' => $providerUser->getAvatar(),
             'provider_user_email' => $providerUser->getEmail(),
         ]);
+        $authProvider->save();
+        return $authProvider;
     }
 
     public function disconnect($id): bool

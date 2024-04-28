@@ -32,10 +32,11 @@ class AuthProviderController extends Controller
             return response()->json(['message' => 'unauthorized'], 403);
         }
 
-        $WILL_LOCKOUT = $user->passwordIsNull() && $this->isLastProvider();
-
-        if ($WILL_LOCKOUT && $this->preventAccountLockout) {
-            return $this->abortDisconnect();
+        if ($this->preventAccountLockout && $this->willBeLockedOut($user)) {
+            return response()->json([
+                'cause' => 'cannot-disconnect-last-provider',
+                'message' => 'You cannot disconnect the last provider. Create a password to continue.',
+            ], 400);
         }
 
         if ($providerService->disconnect($id)) {
@@ -64,9 +65,12 @@ class AuthProviderController extends Controller
 
         try {
             $user = Socialite::driver($provider)->user();
-        } catch (InvalidStateException) {
+        } catch (InvalidStateException $e) {
             $url = $SPA_URL . RedirectRouteProvider::getRoute(Auth::check() ? 'onAuthOnly' : 'onGuestOnly');
-            return redirect()->to($url . request()->has('error') ? '&error=invalid-state' : '');
+            $error = request()->has('error')
+                ? '&error=' . urlencode($e->getMessage() ?? 'invalid-state')
+                : '';
+            return redirect()->to($url . $error);
         }
 
         $authenticatableUser = $providerService->findOrCreate($user, $provider);
@@ -99,11 +103,8 @@ class AuthProviderController extends Controller
         return AuthProvider::where('user_id', auth()->id())->count() === 1;
     }
 
-    private function abortDisconnect(): JsonResponse
+    private function willBeLockedOut($user): bool
     {
-        return response()->json([
-            'cause' => 'cannot-disconnect-last-provider',
-            'message' => 'You cannot disconnect the last provider. Create a password to continue.',
-        ], 400);
+        return $user->isPasswordNull() && $this->isLastProvider();
     }
 }
