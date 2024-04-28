@@ -34,7 +34,7 @@ class AuthProviderService
         $authProvider = $this->firstOrNew($provider, $providerUser);
 
         if ($authProvider->exists) {
-            return User::findOrFail($authProvider->user_id);
+            return $authProvider->user;
         }
 
         $user = User::firstOrNew([
