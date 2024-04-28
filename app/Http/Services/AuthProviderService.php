@@ -23,6 +23,7 @@ class AuthProviderService
         return AuthProvider::where('user_id', auth()->id())->findOrFail($id);
     }
 
+
     public function findOrCreate(ProviderUser $providerUser, $provider): User
     {
         if (Auth::check()) {
@@ -54,7 +55,7 @@ class AuthProviderService
 
     public function firstOrNew(string $provider, ProviderUser $providerUser): AuthProvider
     {
-        $authProvider = AuthProvider::firstOrNew([
+        return AuthProvider::firstOrNew([
             'provider' => $provider,
             'provider_user_id' => $providerUser->getId(),
             'provider_user_name' => $providerUser->getName(),
@@ -62,8 +63,6 @@ class AuthProviderService
             'provider_user_avatar' => $providerUser->getAvatar(),
             'provider_user_email' => $providerUser->getEmail(),
         ]);
-        $authProvider->save();
-        return $authProvider;
     }
 
     public function disconnect($id): bool

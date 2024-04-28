@@ -10,6 +10,7 @@ use App\Providers\RedirectRouteProvider;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\InvalidStateException;
 
@@ -29,7 +30,9 @@ class AuthProviderController extends Controller
         $user = User::findOrFail($providerUser->user_id);
 
         if ($user->id !== auth()->id()) {
-            return response()->json(['message' => 'unauthorized'], 403);
+            return response()->json([
+                'message' => 'unauthorized'
+            ], 403);
         }
 
         if ($this->preventAccountLockout && $this->willBeLockedOut($user)) {
@@ -66,11 +69,9 @@ class AuthProviderController extends Controller
         try {
             $user = Socialite::driver($provider)->user();
         } catch (InvalidStateException $e) {
-            $url = $SPA_URL . RedirectRouteProvider::getRoute(Auth::check() ? 'onAuthOnly' : 'onGuestOnly');
-            $error = request()->has('error')
-                ? '&error=' . urlencode($e->getMessage() ?? 'invalid-state')
-                : '';
-            return redirect()->to($url . $error);
+            $error = '&error=' . request()->has('error') ? Str::slug($e->getMessage()) : 'invalid-state';
+            $path = RedirectRouteProvider::getRoute(Auth::check() ? 'onAuthOnly' : 'onGuestOnly');
+            return redirect()->to($SPA_URL . $path . $error);
         }
 
         $authenticatableUser = $providerService->findOrCreate($user, $provider);

@@ -37,8 +37,8 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
                 ->middleware('auth')
                 ->name('logout');
 
-Route::get('auth/{provider}', [AuthProviderController::class, 'redirect'])
+Route::get('/auth/{provider}', [AuthProviderController::class, 'redirect'])
                 ->name('auth.provider.redirect');
 
-Route::get('auth/{provider}/callback', [AuthProviderController::class, 'callback'])
+Route::get('/auth/{provider}/callback', [AuthProviderController::class, 'callback'])
                 ->name('auth.provider.callback');

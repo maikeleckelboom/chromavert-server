@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Route;
 
 require __DIR__ . '/auth.php';
 
-
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/user', [CurrentUserController::class, 'index']);
     Route::delete('/user', [CurrentUserController::class, 'destroy']);
@@ -26,10 +25,6 @@ Route::get('/', function () {
     return [
         'PHP' => PHP_VERSION,
         'Laravel' => app()->version(),
-        'Database' => config('database.default'),
-        'Cache' => config('cache.default'),
-        'Queue' => config('queue.default'),
-        'Session' => config('session.driver'),
     ];
 });
 
