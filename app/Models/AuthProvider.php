@@ -16,11 +16,6 @@ class AuthProvider extends Model
 {
     use HasFactory;
 
-    public User $user;
-
-    public int $id;
-    public int $user_id;
-
     protected $fillable = [
         'provider',
         'provider_user_id',

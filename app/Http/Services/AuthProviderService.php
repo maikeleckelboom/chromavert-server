@@ -42,7 +42,7 @@ class AuthProviderService
         ]);
 
         if (!$user->exists) {
-            $user = $this->inheritUserAttributes($user, $providerUser);
+            $user = $this->addMissingValuesToUser($user, $providerUser);
             $user->save();
         }
 
@@ -79,7 +79,7 @@ class AuthProviderService
         }
     }
 
-    private function inheritUserAttributes(User $user, ProviderUser $providerUser): User
+    private function addMissingValuesToUser(User $user, ProviderUser $providerUser): User
     {
         $user->username ??= UsernameGenerator::generate(
             $providerUser->getNickname() ?? $providerUser->getName()
