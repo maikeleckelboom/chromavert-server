@@ -18,6 +18,7 @@ class AuthProvider extends Model
 
     public User $user;
 
+    public int $id;
     public int $user_id;
 
     protected $fillable = [
