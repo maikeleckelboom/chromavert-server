@@ -20,7 +20,11 @@ class AuthProviderObserver
     public function deleted(AuthProvider $authProvider): void
     {
         $user = User::findOrFail($authProvider->user_id);
-        if ($user->authProviders->count() === 0) {
+        if (
+            !is_null($user)
+            && $user->password === null
+            && $user->authProviders->count() === 0
+        ) {
             $user->delete();
         }
     }

@@ -2,27 +2,35 @@
 
 namespace App\Http\Services;
 
-use App\Http\Resources\AuthProviderResource;
 use App\Models\AuthProvider;
 use App\Models\User;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Contracts\User as ProviderUser;
 use TaylorNetwork\UsernameGenerator\Facades\UsernameGenerator;
 
 class AuthProviderService
 {
-    public function all(): AnonymousResourceCollection
+    public function all()
     {
         $user = User::findOrFail(auth()->id());
-        return AuthProviderResource::collection($user->authProviders);
+        return collect($user->authProviders)->map(fn($provider) => [
+            'id' => $provider->id,
+            'name' => $provider->provider,
+            'createdAt' => $provider->created_at->format('d M Y H:i'),
+            'updatedAt' => $provider->updated_at->diffForHumans(),
+            'user' => [
+                'email' => $provider->provider_user_email,
+                'name' => $provider->provider_user_name,
+                'username' => $provider->provider_user_nickname,
+                'avatar' => $provider->provider_user_avatar,
+            ],
+        ]);
     }
 
     public function find($id)
     {
         return AuthProvider::where('user_id', auth()->id())->findOrFail($id);
     }
-
 
     public function findOrCreate(ProviderUser $providerUser, $provider): User
     {

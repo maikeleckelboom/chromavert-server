@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Services\AuthProviderService;
+use App\IntruderMessage;
 use App\Models\AuthProvider;
 use App\Models\User;
 use App\Providers\RedirectRouteProvider;
@@ -27,11 +28,12 @@ class AuthProviderController extends Controller
     public function disconnect(AuthProviderService $providerService, $id): JsonResponse
     {
         $providerUser = $providerService->find($id)->user;
-        $user = User::findOrFail($providerUser->user_id);
+        $user = User::findOrFail($providerUser->id);
 
         if ($user->id !== auth()->id()) {
             return response()->json([
-                'message' => 'unauthorized'
+                'message' => (new IntruderMessage)->make('You cannot disconnect other users\' providers.'),
+                'cause' => 'cannot-disconnect-other-user-provider',
             ], 403);
         }
 
@@ -49,7 +51,10 @@ class AuthProviderController extends Controller
             ], 204);
         };
 
-        return response()->json(['message' => 'provider-not-found'], 404);
+        return response()->json([
+            'cause' => 'provider-not-found',
+            'message' => 'The provider was not found.',
+        ], 404);
     }
 
     public function redirect(string $provider): RedirectResponse
@@ -97,7 +102,6 @@ class AuthProviderController extends Controller
         }
         return $params;
     }
-
 
     private function isLastProvider(): bool
     {
