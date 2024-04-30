@@ -2,7 +2,7 @@
 
 namespace App;
 
-class IntruderMessage
+class DeterrentMessage
 {
     public static array $emojiList = ['😠', '😡', '😤'];
 
@@ -13,8 +13,8 @@ class IntruderMessage
             "Your malicious intent is clear.",
             "Your actions reek of malevolence.",
             "Your malevolent essence is undeniable.",
-            "Your nefarious motives are evident. You cannot disconnect other users' providers.",
-            "Your conduct exudes malevolence. You cannot disconnect other users' providers.",
+            "Your nefarious motives are evident.",
+            "Your conduct exudes malevolence.",
         ];
     }
 
