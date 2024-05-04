@@ -15,7 +15,7 @@ return [
      *
      * Set to 0 to not enforce
      */
-    'min_length' => 0,
+    'min_length' => 2,
 
     /*
      * Want to throw a UsernameTooShort exception when too short?
@@ -46,7 +46,7 @@ return [
     /*
      * Convert spaces in username to a separator
      */
-    'separator' => '',
+    'separator' => '_',
 
     /*
      * Model to check if the username is unique to.

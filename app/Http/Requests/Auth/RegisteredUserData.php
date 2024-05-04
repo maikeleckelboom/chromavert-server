@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http;
+namespace App\Http\Requests\Auth;
 
 class RegisteredUserData
 {
@@ -9,9 +9,7 @@ class RegisteredUserData
         public string $email,
         public string $password,
         public ?string $name = null,
-        public ?string $avatar = null,
         public ?string $username = null,
-
     )
     {
     }

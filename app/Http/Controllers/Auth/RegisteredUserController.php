@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\User\StoreUserRequest;
-use App\Http\RegisteredUserData;
+use App\Http\Requests\Auth\RegisteredUserData;
+use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Response;
@@ -18,7 +18,7 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(StoreUserRequest $request): Response
+    public function store(RegisterRequest $request): Response
     {
 
         $validated = new RegisteredUserData(...$request->validated());

@@ -17,7 +17,7 @@ use Laravel\Socialite\Two\InvalidStateException;
 
 class AuthProviderController extends Controller
 {
-    private bool $preventAccountLockout = false;
+    private bool $preventAccountLockout = true;
 
     public function index(AuthProviderService $providerService): JsonResponse
     {
@@ -32,7 +32,7 @@ class AuthProviderController extends Controller
 
         if ($user->id !== auth()->id()) {
             return response()->json([
-                'message' => (new DeterrentMessage)->make('You cannot disconnect other users\' providers.'),
+                'message' => (new DeterrentMessage)->make("You cannot disconnect other users' providers."),
                 'cause' => 'cannot-disconnect-other-user-provider',
             ], 403);
         }

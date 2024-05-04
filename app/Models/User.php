@@ -16,6 +16,8 @@ use TaylorNetwork\UsernameGenerator\GeneratesUsernames;
  * @method static create(array $data)
  * @method static findOrFail($id)
  * @method static firstOrNew(array $array)
+ * @method static find(int $id)
+ * @property int $id
  */
 class User extends Authenticatable
 {
