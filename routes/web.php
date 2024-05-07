@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Route;
 require __DIR__ . '/auth.php';
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
-    Route::resource('/user', CurrentUserController::class)->only(['index', 'destroy', 'update']);
+    Route::patch('/user', [CurrentUserController::class, 'update']);
+    Route::get('/user', [CurrentUserController::class, 'index']);
+    Route::delete('/user', [CurrentUserController::class, 'destroy']);
     Route::group(['prefix' => 'user'], function () {
         Route::get('/providers', [AuthProviderController::class, 'index']);
         Route::delete('/providers/{id}', [AuthProviderController::class, 'disconnect']);

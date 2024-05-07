@@ -22,12 +22,12 @@ class DatabaseSessionController extends Controller
             return response()->json(['message' => 'session-driver-not-supported']);
         }
 
-        $connections = DB::connection(config('session.connection'))->table(config('session.table', 'sessions'))
+        $sessions = DB::connection(config('session.connection'))->table(config('session.table', 'sessions'))
             ->where('user_id', $request->user()->getAuthIdentifier())
             ->orderBy('last_activity', 'desc')
             ->get();
 
-        return response()->json(DatabaseSessionResource::collection($connections));
+        return response()->json(DatabaseSessionResource::collection($sessions));
     }
 
 

@@ -3,7 +3,6 @@
 namespace App\Http\Services;
 
 use App\Models\User;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\DB;
 
 
@@ -23,13 +22,13 @@ class UserService
                 $user->updateAvatar($input['avatar']);
             }
 
-            $this->updateUser($user, collect($input)->except('avatar')->toArray());
+            $this->forceUpdate($user, collect($input)->except('avatar')->toArray());
         });
 
         return $user->refresh()->getChanges();
     }
 
-    protected function updateUser(User $user, array $input): void
+    protected function forceUpdate(User $user, array $input): void
     {
         $currentAttributes = $user->getAttributes();
 
@@ -42,5 +41,6 @@ class UserService
             $filteredInput
         ))->save();
     }
+
 }
 
