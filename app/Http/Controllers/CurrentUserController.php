@@ -6,14 +6,28 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Services\UserService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class CurrentUserController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request, UserService $userService): JsonResponse
     {
-        return response()->json(UserResource::make(Auth::user()));
+        $user = $userService->getCurrentUser();
+        return response()->json($user );
+    }
+
+    public function account(Request $request, UserService $userService): JsonResponse
+    {
+        $user = $userService->getCurrentUser();
+
+        return response()->json([
+            'name' => $user->getNamesList(),
+            'email' => $user->getEmailsList(),
+            'avatar' => $user->getAvatarsList(),
+            'username' => $user->getUsernamesList(),
+        ]);
     }
 
     public function update(UpdateUserRequest $request, UserService $userService): JsonResponse

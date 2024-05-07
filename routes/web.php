@@ -11,7 +11,9 @@ require __DIR__ . '/auth.php';
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::patch('/user', [CurrentUserController::class, 'update']);
     Route::get('/user', [CurrentUserController::class, 'index']);
+    Route::get('/user/account', [CurrentUserController::class, 'account']);
     Route::delete('/user', [CurrentUserController::class, 'destroy']);
+
     Route::group(['prefix' => 'user'], function () {
         Route::get('/providers', [AuthProviderController::class, 'index']);
         Route::delete('/providers/{id}', [AuthProviderController::class, 'disconnect']);

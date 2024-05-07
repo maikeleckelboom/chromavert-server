@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Storage;
 
 trait HasAvatar
 {
-    protected string|null $avatar;
 
     public function updateAvatar(UploadedFile $avatar, $storagePath = 'avatars'): void
     {
@@ -34,7 +33,7 @@ trait HasAvatar
         $this->forceFill(['avatar' => null])->save();
     }
 
-    public function profileAvatarUrl(): Attribute
+    public function avatarUrl(): Attribute
     {
         return Attribute::get(function (): string {
             return $this->avatar

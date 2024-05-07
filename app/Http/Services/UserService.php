@@ -8,6 +8,12 @@ use Illuminate\Support\Facades\DB;
 
 class UserService
 {
+
+    public function getCurrentUser(): User
+    {
+        return $this->getUserById(auth()->id());
+    }
+
     public function getUserById(int $id): User
     {
         return User::findOrFail($id);

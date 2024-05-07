@@ -37,4 +37,6 @@ class AuthProvider extends Model
             set: fn($value) => ['provider' => strtolower($value)]
         );
     }
+
+
 }
