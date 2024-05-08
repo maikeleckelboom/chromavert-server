@@ -29,7 +29,7 @@ trait HasProviderData
         return $providedAvatars;
     }
 
-    public function getUsernamesList()
+    public function getUsernames()
     {
         $currentUser = (new UserService())->getCurrentUser();
         $currentUserUsername = $currentUser->username;
@@ -53,7 +53,7 @@ trait HasProviderData
         return $nicknames;
     }
 
-    public function getEmailsList()
+    public function getEmailAddresses()
     {
         $currentUser = (new UserService())->getCurrentUser();
         $currentUserEmail = $currentUser->email;
@@ -74,7 +74,7 @@ trait HasProviderData
             ]);
     }
 
-    public function getNamesList()
+    public function getNames()
     {
         $currentUser = (new UserService())->getCurrentUser();
         $currentUserName = $currentUser->name;

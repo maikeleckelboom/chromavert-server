@@ -15,19 +15,26 @@ class CurrentUserController extends Controller
     public function index(Request $request, UserService $userService): JsonResponse
     {
         $user = $userService->getCurrentUser();
-        return response()->json($user );
+        return response()->json($user);
     }
 
     public function account(Request $request, UserService $userService): JsonResponse
     {
         $user = $userService->getCurrentUser();
 
-        return response()->json([
-            'name' => $user->getNamesList(),
-            'email' => $user->getEmailsList(),
+        $result = [
+            'name' => $user->getNames(),
+            'email' => $user->getEmailAddresses(),
             'avatar' => $user->getAvatarsList(),
-            'username' => $user->getUsernamesList(),
-        ]);
+            'username' => $user->getUsernames(),
+        ];
+
+        $jsonResponse =
+            !empty($request->all())
+                ? array_filter($result, fn($key) => $request->has($key), ARRAY_FILTER_USE_KEY)
+                : $result;
+
+        return response()->json($jsonResponse);
     }
 
     public function update(UpdateUserRequest $request, UserService $userService): JsonResponse
@@ -43,11 +50,24 @@ class CurrentUserController extends Controller
         }
     }
 
+    public function updateEmail(Request $request, UserService $userService): JsonResponse
+    {
+        $email = $request->input('email');
+        $user = $userService->getCurrentUser();
+        $success = $userService->tryUpdatePrimaryEmailAddress($user->id, $email);
+        if($success) {
+            return response()->json(null, ResponseAlias::HTTP_NO_CONTENT);
+        }
+        return response()->json([
+            'message' => 'Email is already in use',
+        ], ResponseAlias::HTTP_CONFLICT);
+
+    }
+
     public function destroy(): JsonResponse
     {
 //        Auth::user()->delete();
 //        Auth::logout();
         return response()->json(null, 204);
     }
-
 }

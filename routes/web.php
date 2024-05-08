@@ -12,6 +12,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::patch('/user', [CurrentUserController::class, 'update']);
     Route::get('/user', [CurrentUserController::class, 'index']);
     Route::get('/user/account', [CurrentUserController::class, 'account']);
+    Route::patch('/user/email', [CurrentUserController::class, 'updateEmail']);
     Route::delete('/user', [CurrentUserController::class, 'destroy']);
 
     Route::group(['prefix' => 'user'], function () {

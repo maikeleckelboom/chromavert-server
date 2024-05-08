@@ -3,6 +3,7 @@
 namespace App\Http\Services;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 
@@ -48,5 +49,21 @@ class UserService
         ))->save();
     }
 
+    public function tryUpdatePrimaryEmailAddress(int $id, string $email): mixed
+    {
+        $user = $this->getUserById($id);
+        $userEmail = $user->email;
+        $providerEmails = $user->authProviders()->where('provider_user_email', $email)->get();
+        if ($this->isRegisteredWithProvider($providerEmails, $email) || ($userEmail === $email && $user->email_verified_at !== null)) {
+            return $user->update(['email' => $email]);
+        }
+        return false;
+    }
+
+
+    public function isRegisteredWithProvider(Collection $providers, string $email): bool
+    {
+        return $providers->some(fn($provider) => $provider->email === $email);
+    }
 }
 
