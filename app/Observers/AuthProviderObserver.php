@@ -17,7 +17,7 @@ class AuthProviderObserver
     private function isLockedOut($user): bool
     {
         return !is_null($user)
-            && $user->password === null
+            && is_null($user->password)
             && $user->authProviders->count() === 0;
     }
 

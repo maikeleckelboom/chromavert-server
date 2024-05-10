@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Http\Services\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
-use TaylorNetwork\UsernameGenerator\Generator;
 
 class UserProfileController
 {
@@ -17,35 +16,22 @@ class UserProfileController
     /**
      * @throws ValidationException
      */
-    public function update(Request $request): JsonResponse
+    public function update(Request $request, UserService $userService): JsonResponse
     {
-        $input = $request->all();
         $user = $request->user();
 
-        Validator::make($input, [
+        $input = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'username' => ['required', 'string', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'photo' => ['nullable', 'mimes:jpg,jpeg,png,svg,avif,gif,webp', 'max:1024']
+            'photo' => ['mimes:jpg,jpeg,png,svg,avif,gif', 'max:1024'],
         ])->validateWithBag('updateProfileInformation');
 
-        if (isset($input['photo'])) {
-            $user->updateProfilePhoto($input['photo']);
+        if ($request->only('__delete_photo')) {
+            $input['__delete_photo'] = true;
         }
 
-        if ($input['username'] !== $user->username) {
-            $input['username'] = (new Generator())->generate($input['username']);
-        }
-
-        if ($input['email'] !== $user->email && $user instanceof MustVerifyEmail) {
-            $this->updateVerifiedUser($user, $input);
-        } else {
-            $user->forceFill([
-                'name' => $input['name'],
-                'username' => $input['username'],
-                'email' => $input['email'],
-            ])->save();
-        }
+        DB::transaction(fn() => $userService->updateProfileInformation($user, $input));
 
         return response()->json([
             'message' => 'Update Successful',
@@ -53,29 +39,7 @@ class UserProfileController
         ]);
     }
 
-    protected function getType($input): string
-    {
-        return gettype($input);
-    }
-
-    /**
-     * Update the given verified user's profile information.
-     *
-     * @param array<string, string> $input
-     */
-    protected function updateVerifiedUser(User $user, array $input): void
-    {
-        $user->forceFill([
-            'name' => $input['name'],
-            'email' => $input['email'],
-            'username' => $input['username'],
-            'email_verified_at' => null,
-        ])->save();
-
-        $user->sendEmailVerificationNotification();
-    }
-
-    public function destroy(Request $request): JsonResponse
+    public function deleteProfilePhoto(Request $request): JsonResponse
     {
         $request->user()->deleteProfilePhoto();
 
@@ -84,5 +48,4 @@ class UserProfileController
             'description' => 'Your profile photo has been removed.',
         ]);
     }
-
 }

@@ -29,7 +29,7 @@ class User extends Authenticatable implements MustVerifyEmail
     use FindSimilarUsernames;
     use GeneratesUsernames;
     use SoftDeletes;
-    use HasProviderData;
+//    use HasProviderData;
 
     private string|null $password;
 
@@ -86,6 +86,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isEmailVerified(): bool
     {
         return !is_null($this->email_verified_at);
+    }
+
+    public function isPasswordNull()
+    {
+        return is_null($this->password);
     }
 
 }

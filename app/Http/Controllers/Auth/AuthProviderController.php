@@ -109,6 +109,6 @@ class AuthProviderController extends Controller
 
     private function willBeLockedOut($user): bool
     {
-        return $user->isPasswordNull() && $this->isLastProvider();
+        return is_null($user->password) && $this->isLastProvider();
     }
 }

@@ -2,51 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Services\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpFoundation\Response as ResponseAlias;
+use Illuminate\Support\Facades\DB;
 
 class CurrentUserController extends Controller
 {
-    public function index(Request $request, UserService $userService): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $user = $userService->getCurrentUser();
-        return response()->json(UserResource::make($user));
+        return response()->json(UserResource::make($request->user()));
     }
 
-    public function account(Request $request, UserService $userService): JsonResponse
+    public function destroy(Request $request, UserService $userService): JsonResponse
     {
-        $user = $userService->getCurrentUser();
+        DB::transaction(function () use ($request, $userService) {
+            $userService->deleteUser($request->user());
+        });
 
-        $result = [
-            'name' => $user->getNames(),
-            'email' => $user->getEmailAddresses(),
-            'avatar' => $user->getAvatarsList(),
-            'username' => $user->getUsernames(),
-        ];
-
-        return response()->json($result);
-    }
-
-//    public function update(UpdateUserRequest $request, UserService $userService): JsonResponse
-//    {
-//        try {
-//            $changes = $userService->updateUserById(Auth::id(), $request->validated());
-//            return response()->json($changes, ResponseAlias::HTTP_OK);
-//        } catch (\Exception $e) {
-//            return response()->json([
-//                'cause' => 'database-error',
-//                'exception' => $e->getMessage(),
-//            ], ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
-//        }
-//    }
-
-    public function destroy(): JsonResponse
-    {
-        return response()->json(null, 204);
+        return response()->json([
+            'message' => 'Deletion Successful',
+            'description' => 'Your account has been deleted. You will be logged out.',
+        ]);
     }
 }

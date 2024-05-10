@@ -3,8 +3,12 @@
 namespace App\Http\Services;
 
 use App\Models\User;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Validator;
+use TaylorNetwork\UsernameGenerator\Generator;
 
 
 class UserService
@@ -20,28 +24,58 @@ class UserService
         return User::findOrFail($id);
     }
 
-    public function updateUserById(int $id, array $input): array
+    public function deleteUser(User $user): void
     {
-        $user = $this->getUserById($id);
-
-        $this->forceUpdate($user, $input);
-
-        return $user->getChanges();
+        $user->authProviders()->delete();
+        $user->deleteProfilePhoto();
+        $user->forceDelete();
     }
 
-    private function forceUpdate(User $user, array $input): void
+    public function updatePassword(User $user, array $input): void
     {
-        $currentAttributes = $user->getAttributes();
-
-        $filteredInput = array_filter($input, function ($value, $key) use ($currentAttributes) {
-            return $value !== null && (!isset($currentAttributes[$key]) || $value !== $currentAttributes[$key]);
-        }, ARRAY_FILTER_USE_BOTH);
-
-        $user->forceFill(array_merge(
-            $currentAttributes,
-            $filteredInput
-        ))->save();
+        $user->forceFill([
+            'password' => Hash::make($input['password']),
+        ])->save();
     }
 
+    public function updateProfileInformation(User $user, array $input): void
+    {
+        if (isset($input['__delete_photo'])) {
+            $user->deleteProfilePhoto();
+        } else if (isset($input['photo'])) {
+            $user->updateProfilePhoto($input['photo']);
+        }
+
+        if ($input['username'] !== $user->username) {
+            $input['username'] = $this->generateUsername($input['username']);
+        }
+
+        if ($input['email'] !== $user->email && $user instanceof MustVerifyEmail) {
+            $this->updateVerifiedUser($user, $input);
+        } else {
+            $user->forceFill([
+                'name' => $input['name'],
+                'username' => $input['username'],
+                'email' => $input['email'],
+            ])->save();
+        }
+    }
+
+    protected function updateVerifiedUser(User $user, array $input): void
+    {
+        $user->forceFill([
+            'name' => $input['name'],
+            'email' => $input['email'],
+            'username' => $input['username'],
+            'email_verified_at' => null,
+        ])->save();
+
+        $user->sendEmailVerificationNotification();
+    }
+
+    protected function generateUsername(string $username): string
+    {
+        return (new Generator())->generate($username);
+    }
 }
 

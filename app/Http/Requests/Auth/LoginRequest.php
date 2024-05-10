@@ -42,7 +42,6 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-
         if ($this->isRegisteredWithAuthProvider() && !$this->hasPassword()) {
             throw ValidationException::withMessages([
                 'email' => 'This email is associated with an external provider',
@@ -104,6 +103,6 @@ class LoginRequest extends FormRequest
      */
     private function hasPassword(): bool
     {
-        return !is_null($this->getPassword());
+        return $this->filled('password');
     }
 }

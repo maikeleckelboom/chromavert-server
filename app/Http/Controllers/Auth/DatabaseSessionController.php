@@ -30,7 +30,6 @@ class DatabaseSessionController extends Controller
         return response()->json(DatabaseSessionResource::collection($sessions));
     }
 
-
     /**
      * Destroy the given session.
      *

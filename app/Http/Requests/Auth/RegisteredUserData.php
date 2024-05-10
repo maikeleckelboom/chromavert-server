@@ -8,6 +8,7 @@ class RegisteredUserData
 
         public string $email,
         public string $password,
+        public ?string $profile_photo_path = null,
         public ?string $name = null,
         public ?string $username = null,
     )

@@ -5,13 +5,14 @@ namespace App\Http\Services;
 use App\Http\Resources\Auth\AuthProviderResource;
 use App\Models\AuthProvider;
 use App\Models\User;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Contracts\User as ProviderUser;
 use TaylorNetwork\UsernameGenerator\Facades\UsernameGenerator;
 
 class AuthProviderService
 {
-    public function all()
+    public function all(): Collection
     {
         $user = User::findOrFail(auth()->id());
         return collect($user->authProviders)
