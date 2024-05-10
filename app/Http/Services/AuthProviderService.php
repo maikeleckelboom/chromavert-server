@@ -2,6 +2,7 @@
 
 namespace App\Http\Services;
 
+use App\Http\Resources\Auth\AuthProviderResource;
 use App\Models\AuthProvider;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -13,18 +14,8 @@ class AuthProviderService
     public function all()
     {
         $user = User::findOrFail(auth()->id());
-        return collect($user->authProviders)->map(fn($provider) => [
-            'id' => $provider->id,
-            'name' => $provider->provider,
-            'createdAt' => $provider->created_at->format('d M Y H:i'),
-            'updatedAt' => $provider->updated_at->diffForHumans(),
-            'user' => [
-                'email' => $provider->provider_user_email,
-                'name' => $provider->provider_user_name,
-                'username' => $provider->provider_user_nickname,
-                'avatar' => $provider->provider_user_avatar,
-            ],
-        ]);
+        return collect($user->authProviders)
+            ->map(fn($provider) => new AuthProviderResource($provider));
     }
 
     public function find($id)
@@ -95,7 +86,7 @@ class AuthProviderService
         );
         $user->email ??= $providerUser->getEmail();
         $user->name ??= $providerUser->getName();
-        $user->avatar ??= $providerUser->getAvatar();
+        $user->profile_photo_path ??= $providerUser->getAvatar();
         return $user;
     }
 }

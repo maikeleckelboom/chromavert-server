@@ -7,6 +7,25 @@ use App\Models\User;
 
 class AuthProviderObserver
 {
+    public function deleted(AuthProvider $authProvider): void
+    {
+        $user = User::findOrFail($authProvider->user_id);
+        if ($this->isLockedOut($user)) {
+            $user->delete();
+        }
+    }
+    private function isLockedOut($user): bool
+    {
+        return !is_null($user)
+            && $user->password === null
+            && $user->authProviders->count() === 0;
+    }
+
+
+    /*
+     * | Other ...
+     * | _______________
+     */
     public function created(AuthProvider $authProvider): void
     {
 
@@ -17,14 +36,6 @@ class AuthProviderObserver
         //
     }
 
-    public function deleted(AuthProvider $authProvider): void
-    {
-        $user = User::findOrFail($authProvider->user_id);
-        if ($this->isLockedOut($user)) {
-            $user->delete();
-        }
-    }
-
     public function restored(AuthProvider $authProvider): void
     {
         //
@@ -33,12 +44,5 @@ class AuthProviderObserver
     public function forceDeleted(AuthProvider $authProvider): void
     {
         //
-    }
-
-    private function isLockedOut($user): bool
-    {
-        return !is_null($user)
-            && $user->password === null
-            && $user->authProviders->count() === 0;
     }
 }

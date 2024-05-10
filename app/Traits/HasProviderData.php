@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http;
+namespace App\Traits;
 
 use App\Http\Services\UserService;
 
@@ -57,13 +57,15 @@ trait HasProviderData
     {
         $currentUser = (new UserService())->getCurrentUser();
         $currentUserEmail = $currentUser->email;
+        $isSameAsEmail = fn($email) => $email === $currentUser->email;;
 
-        return $this->authProviders()->pluck('provider_user_email')
-            ->reject(fn($email) => $email === $currentUserEmail)
+        return $this->authProviders()
+            ->pluck('provider_user_email')
+            ->reject(fn($email) => $isSameAsEmail($email) || is_null($email))
             ->map(fn($email) => [
                 'value' => $email,
-                'selected' => $email === $currentUserEmail,
-                'verified' => $email === $currentUserEmail
+                'selected' => $isSameAsEmail($email),
+                'verified' => $isSameAsEmail($email)
                     ? $this->isEmailVerified()
                     : $this->isEmailExistent($email),
             ])

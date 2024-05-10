@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Services\AuthProviderService;
-use App\DeterrentMessage;
 use App\Models\AuthProvider;
 use App\Models\User;
 use App\Providers\RedirectRouteProvider;
@@ -32,7 +31,7 @@ class AuthProviderController extends Controller
 
         if ($user->id !== auth()->id()) {
             return response()->json([
-                'message' => (new DeterrentMessage)->make("You cannot disconnect other users' providers."),
+                'message' => "You cannot disconnect other users' providers.",
                 'cause' => 'cannot-disconnect-other-user-provider',
             ], 403);
         }

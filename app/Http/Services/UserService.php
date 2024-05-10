@@ -24,18 +24,12 @@ class UserService
     {
         $user = $this->getUserById($id);
 
-        DB::transaction(function () use ($user, $input) {
-            if (isset($input['avatar'])) {
-                $user->updateAvatar($input['avatar']);
-            }
+        $this->forceUpdate($user, $input);
 
-            $this->forceUpdate($user, collect($input)->except('avatar')->toArray());
-        });
-
-        return $user->refresh()->getChanges();
+        return $user->getChanges();
     }
 
-    protected function forceUpdate(User $user, array $input): void
+    private function forceUpdate(User $user, array $input): void
     {
         $currentAttributes = $user->getAttributes();
 
@@ -49,21 +43,5 @@ class UserService
         ))->save();
     }
 
-    public function tryUpdatePrimaryEmailAddress(int $id, string $email): mixed
-    {
-        $user = $this->getUserById($id);
-        $userEmail = $user->email;
-        $providerEmails = $user->authProviders()->where('provider_user_email', $email)->get();
-        if ($this->isRegisteredWithProvider($providerEmails, $email) || ($userEmail === $email && $user->email_verified_at !== null)) {
-            return $user->update(['email' => $email]);
-        }
-        return false;
-    }
-
-
-    public function isRegisteredWithProvider(Collection $providers, string $email): bool
-    {
-        return $providers->some(fn($provider) => $provider->email === $email);
-    }
 }
 

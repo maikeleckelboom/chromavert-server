@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\DatabaseSessionResource;
+use App\Http\Resources\Auth\DatabaseSessionResource;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;

@@ -3,8 +3,9 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Http\Services\UserService;
-use App\Traits\HasAvatar;
+use App\Traits\HasProfilePhoto;
+use App\Traits\HasProviderData;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -12,7 +13,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use TaylorNetwork\UsernameGenerator\FindSimilarUsernames;
 use TaylorNetwork\UsernameGenerator\GeneratesUsernames;
-use App\Http\HasProviderData;
 
 /**
  * @method static create(array $data)
@@ -21,11 +21,11 @@ use App\Http\HasProviderData;
  * @method static find(int $id)
  * @property int $id
  */
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory;
     use Notifiable;
-    use HasAvatar;
+    use HasProfilePhoto;
     use FindSimilarUsernames;
     use GeneratesUsernames;
     use SoftDeletes;
@@ -40,7 +40,6 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'username',
-        'avatar',
         'email',
         'password',
     ];
@@ -65,6 +64,15 @@ class User extends Authenticatable
     }
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'profile_photo_url',
+    ];
+
+    /**
      * @return HasMany
      */
     public function authProviders(): HasMany
@@ -79,4 +87,5 @@ class User extends Authenticatable
     {
         return !is_null($this->email_verified_at);
     }
+
 }

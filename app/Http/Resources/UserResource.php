@@ -18,24 +18,25 @@ class UserResource extends JsonResource
         'name' => "string|null",
         'email' => "string",
         'username' => "string|null",
-        'avatar' => "string|null",
+        'profilePhotoUrl' => "string|null",
         'emailVerified' => "bool",
         'password' => 'bool',
         'createdAt' => "string",
-        'updatedAt' => "string"
+        'updatedAt' => "string",
+        'photo' => 'string|null',
     ])] public function toArray(Request $request): array
     {
-        //  parent::toArray($request);
+//        return parent::toArray($request);
         return [
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
             'username' => $this->username,
-            'avatar' => $this->avatar,
-            'emailVerified' => $this->email_verified_at !== null,
+            'profilePhotoUrl' => $this->profile_photo_url,
             'createdAt' => $this->created_at->format('d M Y H:i'),
             'updatedAt' => $this->updated_at->diffForHumans(),
-            'password' => !is_null($request->user()->password),
+            'emailVerified' => !is_null($this->email_verified_at),
+            'password' => !is_null($this->password),
         ];
     }
 }
