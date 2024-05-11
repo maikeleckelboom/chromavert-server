@@ -10,10 +10,12 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
-class UserProfileController
+class ProfileInformationController
 {
-
     /**
+     * @param Request $request
+     * @param UserService $userService
+     * @return JsonResponse
      * @throws ValidationException
      */
     public function update(Request $request, UserService $userService): JsonResponse
@@ -39,13 +41,18 @@ class UserProfileController
         ]);
     }
 
-    public function deleteProfilePhoto(Request $request): JsonResponse
+    /**
+     * @param Request $request
+     * @param UserService $userService
+     * @return JsonResponse
+     */
+    public function destroy(Request $request, UserService $userService): JsonResponse
     {
-        $request->user()->deleteProfilePhoto();
+        DB::transaction(fn() => $userService->deleteUser($request->user()));
 
         return response()->json([
             'message' => 'Deletion Successful',
-            'description' => 'Your profile photo has been removed.',
+            'description' => 'Your account has been deleted. You will be logged out.',
         ]);
     }
 }

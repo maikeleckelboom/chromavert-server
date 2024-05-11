@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
-
 trait HasProfilePhoto
 {
     /**
@@ -18,7 +17,11 @@ trait HasProfilePhoto
      */
     public function updateProfilePhoto(UploadedFile $photo, string $storagePath = 'profile-photos'): void
     {
+        // Resize the photo
+//        $photo = $this->resizeProfilePhoto($photo, 200, 200, $storagePath);
+
         tap($this->profile_photo_path, function ($previous) use ($photo, $storagePath) {
+
             $this->forceFill([
                 'profile_photo_path' => $photo->storePublicly(
                     $storagePath, ['disk' => $this->profilePhotoDisk()]
@@ -66,6 +69,7 @@ trait HasProfilePhoto
                 : $this->defaultProfilePhotoUrl();
         });
     }
+
 
     protected function profilePhotoIsUrl(): bool
     {

@@ -2,9 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Traits\HasProfilePhoto;
-use App\Traits\HasProviderData;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,6 +10,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use TaylorNetwork\UsernameGenerator\FindSimilarUsernames;
 use TaylorNetwork\UsernameGenerator\GeneratesUsernames;
+use App\Traits\HasProfilePhoto;
 
 /**
  * @method static create(array $data)
@@ -29,7 +27,6 @@ class User extends Authenticatable implements MustVerifyEmail
     use FindSimilarUsernames;
     use GeneratesUsernames;
     use SoftDeletes;
-//    use HasProviderData;
 
     private string|null $password;
 
@@ -88,9 +85,13 @@ class User extends Authenticatable implements MustVerifyEmail
         return !is_null($this->email_verified_at);
     }
 
-    public function isPasswordNull()
+    public function isPasswordNull(): bool
     {
         return is_null($this->password);
     }
 
+    public static function checkIfPasswordNull(User $user): bool
+    {
+        return is_null($user->password);
+    }
 }

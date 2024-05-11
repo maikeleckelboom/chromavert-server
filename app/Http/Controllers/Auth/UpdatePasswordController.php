@@ -47,7 +47,7 @@ class UpdatePasswordController
      */
     private function validatePasswordInput(User $user, array $input): array
     {
-        if ($this->isPasswordNull($user)) {
+        if (User::checkIfPasswordNull($user)) {
             return Validator::make($input, [
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
             ])->validateWithBag('updatePassword');
@@ -73,16 +73,5 @@ class UpdatePasswordController
         if (!isset($input['current_password']) || !Hash::check($input['current_password'], $user->password)) {
             $validator->errors()->add('current_password', __('The provided password does not match your current password.'));
         }
-    }
-
-    /**
-     * Check if user's password is null.
-     *
-     * @param User $user
-     * @return bool
-     */
-    private function isPasswordNull(User $user): bool
-    {
-        return is_null($user->password);
     }
 }

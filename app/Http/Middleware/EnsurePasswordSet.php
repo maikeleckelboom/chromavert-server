@@ -17,7 +17,7 @@ class EnsurePasswordSet
     public function handle(Request $request, Closure $next): Response
     {
         if ($request->user() && is_null($request->user()->password)) {
-            return redirect()->to(config('frontend_url') . '/user/password');
+            return redirect()->to(config('frontend_url') . '/settings/account#password');
         }
 
         return $next($request);
