@@ -24,6 +24,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
 });
 
+Route::get('/maintenance', fn() => response()->json(app()->isDownForMaintenance()))->name('maintenance');
+
+
 Route::get('/', function () {
     return [
         'PHP' => PHP_VERSION,

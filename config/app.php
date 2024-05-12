@@ -140,4 +140,10 @@ return [
         'on_login' => env('REDIRECT_ON_LOGIN', '/settings/access'),
         'on_guest_only' => env('REDIRECT_ON_GUEST_ONLY', '/settings/access'),
     ],
+
+    'whitelist' => [
+        ...array_filter(
+            explode(',', env('APP_WHITELIST', ''))
+        ),
+    ],
 ];
