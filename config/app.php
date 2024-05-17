@@ -146,4 +146,6 @@ return [
             explode(',', env('APP_WHITELIST', ''))
         ),
     ],
+
+
 ];

@@ -5,6 +5,8 @@ namespace App\Traits;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 
 trait HasProfilePhoto
 {
@@ -17,17 +19,14 @@ trait HasProfilePhoto
      */
     public function updateProfilePhoto(UploadedFile $photo, string $storagePath = 'profile-photos'): void
     {
-        // Resize the photo
-//        $photo = $this->resizeProfilePhoto($photo, 200, 200, $storagePath);
+        $this->resizeImage($photo, 192);
 
         tap($this->profile_photo_path, function ($previous) use ($photo, $storagePath) {
-
             $this->forceFill([
                 'profile_photo_path' => $photo->storePublicly(
                     $storagePath, ['disk' => $this->profilePhotoDisk()]
                 ),
             ])->save();
-
             if ($previous) {
                 Storage::disk($this->profilePhotoDisk())->delete($previous);
             }
@@ -64,13 +63,27 @@ trait HasProfilePhoto
                 return $this->profile_photo_path;
             }
 
-            return $this->profile_photo_path
+            $resolvedUrl = $this->profile_photo_path
                 ? Storage::disk($this->profilePhotoDisk())->url($this->profile_photo_path)
                 : $this->defaultProfilePhotoUrl();
+
+            if (config('app.env') === 'local') {
+                return $this->removeStoragePathPrefix($resolvedUrl);
+            }
+
+            return $resolvedUrl;
         });
     }
 
-    protected function removeStoragePath($path): string
+    protected function resizeImage(UploadedFile $photo, int $size): void
+    {
+        $manager = new ImageManager(new Driver());
+        $img = $manager->read($photo->getRealPath());
+        $img->resize($size, $size);
+        $img->save($photo->getRealPath());
+    }
+
+    protected function removeStoragePathPrefix($path): string
     {
         return str_replace('storage/', '', $path);
     }
