@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
     public function createAdminUser(): User
     {
         $role = Role::create(['name' => 'admin']);
-        $permission = Permission::create(['name' => 'access-dashboard']);
+        $permission = Permission::create(['name' => 'dashboard.access']);
 
         $role->givePermissionTo($permission);
 
