@@ -9,6 +9,9 @@ use Illuminate\Support\Carbon;
 
 class DatabaseSessionResource extends JsonResource
 {
+
+    public static $wrap = null;
+
     /**
      * Transform the resource into an array.
      *

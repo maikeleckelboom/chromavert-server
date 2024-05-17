@@ -24,8 +24,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        UserResource::withoutWrapping();
-
         AuthProvider::observe(AuthProviderObserver::class);
 
         ResetPassword::createUrlUsing(function (object $notifiable, string $token) {

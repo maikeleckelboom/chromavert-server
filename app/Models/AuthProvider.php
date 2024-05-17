@@ -38,5 +38,4 @@ class AuthProvider extends Model
         );
     }
 
-
 }
