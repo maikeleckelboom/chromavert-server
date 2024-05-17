@@ -22,9 +22,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::delete('/user/sessions/{id}', [DatabaseSessionController::class, 'destroy']);
     Route::delete('/user/other-sessions', DestroyOtherSessionsController::class);
 
+    Route::get('/maintenance', fn() => response()->json(app()->isDownForMaintenance()))->name('maintenance');
 });
 
-Route::get('/maintenance', fn() => response()->json(app()->isDownForMaintenance()))->name('maintenance');
 
 
 Route::get('/', function () {

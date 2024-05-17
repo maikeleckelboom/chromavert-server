@@ -71,21 +71,19 @@ class AuthProviderController extends Controller
         $SPA_URL = config('app.frontend_url');
 
         try {
-            $user = Socialite::driver($provider)->user();
+            $providerUser = Socialite::driver($provider)->user();
+            $authenticatableUser = $providerService->findOrCreate($providerUser, $provider);
         } catch (InvalidStateException $e) {
             $error = '&error=' . request()->has('error') ? Str::slug($e->getMessage()) : 'invalid-state';
             $path = RedirectRouteProvider::getRoute(Auth::check() ? 'onAuthOnly' : 'onGuestOnly');
             return redirect()->to($SPA_URL . $path . $error);
         }
 
-        $authenticatableUser = $providerService->findOrCreate($user, $provider);
-
         if (!Auth::check()) {
             auth()->login($authenticatableUser, true);
         }
 
         $authenticatableUser->touch();
-
         $redirectUrl = $SPA_URL . RedirectRouteProvider::getRoute('onLogin');
 
         return redirect()->to($redirectUrl);

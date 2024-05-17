@@ -64,10 +64,15 @@ trait HasProfilePhoto
                 return $this->profile_photo_path;
             }
 
-            return $this->profile_photo_path
+            return $this->removeStoragePath($this->profile_photo_path
                 ? Storage::disk($this->profilePhotoDisk())->url($this->profile_photo_path)
-                : $this->defaultProfilePhotoUrl();
+                : $this->defaultProfilePhotoUrl());
         });
+    }
+
+    protected function removeStoragePath($path): string
+    {
+        return str_replace('storage/', '', $path);
     }
 
 

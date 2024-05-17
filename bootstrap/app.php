@@ -30,8 +30,11 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-//        $exceptions->shouldRenderJsonWhen(function (Request $request, Throwable $e) {
-//            return $request->expectsJson();
-//        });
+        $exceptions->shouldRenderJsonWhen(function (Request $request, Throwable $e) {
+            if($e instanceof ServiceUnavailableHttpException){
+                return true;
+            }
+            return $request->expectsJson();
+        });
     })
     ->create();

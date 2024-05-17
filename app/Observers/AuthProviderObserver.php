@@ -10,15 +10,14 @@ class AuthProviderObserver
     public function deleted(AuthProvider $authProvider): void
     {
         $user = User::findOrFail($authProvider->user_id);
+
         if ($this->isLockedOut($user)) {
             $user->delete();
         }
     }
     private function isLockedOut($user): bool
     {
-        return !is_null($user)
-            && is_null($user->password)
-            && $user->authProviders->count() === 0;
+        return !is_null($user) && is_null($user->password) && $user->authProviders->count() === 0;
     }
 
 
