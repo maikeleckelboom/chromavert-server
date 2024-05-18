@@ -33,13 +33,13 @@ class DatabaseSessionController extends Controller
             $sessions->map(function ($session) use ($request) {
                 $agent = $this->createAgent($session);
                 return [
-                    'id' => $this->id,
-                    'ipAddress' => $this->ip_address,
+                    'id' => $session->id,
+                    'ipAddress' => $session->ip_address,
                     'device' => $this->getDeviceType($agent),
                     'platform' => $agent->platform(),
                     'browser' => $agent->browser(),
-                    'isCurrentDevice' => $this->id === $request->session()->getId(),
-                    'lastActive' => Carbon::createFromTimestamp($this->last_activity)->diffForHumans(),
+                    'isCurrentDevice' => $session->id === $request->session()->getId(),
+                    'lastActive' => Carbon::createFromTimestamp($session->last_activity)->diffForHumans(),
                 ];
             })->all()
         );
