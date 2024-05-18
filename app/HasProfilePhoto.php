@@ -25,7 +25,6 @@ trait HasProfilePhoto
     {
 //        if ($photo->getClientOriginalExtension() !== 'avif') {
 //           $this->resizeImage($photo, 192);
-//        }
 
         tap($this->profile_photo_path, function ($previous) use ($photo, $storagePath) {
             $this->forceFill([
@@ -74,21 +73,20 @@ trait HasProfilePhoto
             $resolvedUrl = $this->profile_photo_path
                 ? Storage::disk($this->profilePhotoDisk())->url($this->profile_photo_path)
                 : $this->defaultProfilePhotoUrl();
-//
-//            if (config('app.env') === 'local') {
-//                return $this->removeStoragePathPrefix($resolvedUrl);
-//            }
 
             return $this->removeStoragePathPrefix($resolvedUrl);
         });
     }
 
-    protected function resizeImage(UploadedFile $photo, int $size)
+    protected function resizeImage(UploadedFile $photo, int $size): UploadedFile
     {
         $manager = new ImageManager(new Driver());
         $img = $manager->read($photo->getRealPath());
         $img->resize($size, $size);
-        return $img->save($photo->getRealPath());
+
+        $img->save($photo->getRealPath());
+
+        return $photo;
     }
 
     protected function removeStoragePathPrefix($path): string

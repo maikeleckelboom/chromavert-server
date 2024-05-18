@@ -79,14 +79,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(AuthProvider::class);
     }
 
-    /**
-     * @return bool
-     */
-    public function isEmailVerified(): bool
-    {
-        return !is_null($this->email_verified_at);
-    }
-
     public function isPasswordNull(): bool
     {
         return is_null($this->password);

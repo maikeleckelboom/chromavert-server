@@ -5,6 +5,7 @@ namespace App\Http\Services;
 use App\Http\Resources\Auth\AuthProviderResource;
 use App\Models\AuthProvider;
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Contracts\User as ProviderUser;
@@ -45,6 +46,8 @@ class AuthProviderService
         if (!$user->exists) {
             $user = $this->inheritMissingAttributes($user, $providerUser);
             $user->save();
+
+            event(new Registered($user));
         }
 
         $authProvider->user()->associate($user)->save();
