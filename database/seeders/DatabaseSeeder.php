@@ -27,10 +27,7 @@ class DatabaseSeeder extends Seeder
 
     public function createAdminUser(): User
     {
-        $role = Role::create(['name' => 'admin']);
-        $permission = Permission::create(['name' => 'dashboard.access']);
-
-        $role->givePermissionTo($permission);
+        $role = Role::create(['name' => 'super-admin']);
 
         $user = User::create([
             'name' => 'Admin User',
@@ -38,7 +35,7 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
         ]);
 
-        return $user->assignRole('admin');
+        return $user->assignRole($role);
     }
 
     /**
