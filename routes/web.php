@@ -1,10 +1,10 @@
 <?php
 
 use App\Http\Controllers\Account\AuthProviderController;
+use App\Http\Controllers\Account\CurrentUserController;
 use App\Http\Controllers\Account\DatabaseSessionController;
 use App\Http\Controllers\Account\ProfileInformationController;
 use App\Http\Controllers\Account\UpdatePasswordController;
-use App\Http\Controllers\Auth\CurrentUserController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 

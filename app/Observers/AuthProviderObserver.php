@@ -11,24 +11,14 @@ use Spatie\Permission\Models\Role;
 
 class AuthProviderObserver
 {
-    public function deleted(AuthProvider $authProvider): void
+    public function deleted(AuthProvider $authProvider, UserService $userService): void
     {
         $user = User::findOrFail($authProvider->user_id);
 
         if ($this->isLockedOut($user)) {
-            $user->delete();
-            $user->teams()->delete();
+            $userService->deleteUser($user);
         }
     }
-
-//    public function created(AuthProvider $authProvider, UserService $userService): void
-//    {
-//        $user = $userService->getUserById($authProvider->user_id);
-//
-//        if(!$user->hasVerifiedEmail()) {
-//            $user->sendEmailVerificationNotification();
-//        }
-//    }
 
     private function isLockedOut($user): bool
     {

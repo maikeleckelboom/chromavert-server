@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Auth\CurrentUserController;
+use App\Http\Controllers\Account\CurrentUserController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'auth:sanctum'], function () {

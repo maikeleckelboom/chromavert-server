@@ -16,8 +16,6 @@ use Laravel\Socialite\Two\InvalidStateException;
 
 class AuthProviderController extends Controller
 {
-    private bool $preventAccountLockout = true;
-
     public function index(AuthProviderService $providerService): JsonResponse
     {
         $providers = $providerService->all();
@@ -36,7 +34,7 @@ class AuthProviderController extends Controller
             ], 403);
         }
 
-        if ($this->preventAccountLockout && $this->willBeLockedOut($user)) {
+        if ($this->willBeLockedOut($user)) {
             return response()->json([
                 'cause' => 'cannot-disconnect-last-provider',
                 'message' => 'You cannot disconnect the last provider. Create a password to continue.',
