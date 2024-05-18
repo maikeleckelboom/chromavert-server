@@ -42,3 +42,4 @@ Route::get('/auth/{provider}', [AuthProviderController::class, 'redirect'])
 
 Route::get('/auth/{provider}/callback', [AuthProviderController::class, 'callback'])
                 ->name('auth.provider.callback');
+

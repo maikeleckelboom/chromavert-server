@@ -26,6 +26,8 @@ class UserResource extends JsonResource
         'createdAt' => "string",
         'updatedAt' => "string",
         'photo' => 'string|null',
+        'roles' => 'array',
+        'permissions' => 'array',
     ])] public function toArray(Request $request): array
     {
         return [
@@ -38,6 +40,8 @@ class UserResource extends JsonResource
             'updatedAt' => $this->updated_at->diffForHumans(),
             'emailVerified' => !is_null($this->email_verified_at),
             'password' => !is_null($this->password),
+            'roles' => $this->roles->pluck('name')->toArray(),
+            'permissions' => $this->getAllPermissions()->pluck('name')->toArray(),
         ];
     }
 }

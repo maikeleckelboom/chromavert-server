@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureEmailIsVerified;
 use App\Http\Middleware\EnsurePasswordSet;
+use App\Http\Middleware\EnsureUserIsSuperAdmin;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -27,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'verified' => EnsureEmailIsVerified::class,
             'guest' => RedirectIfAuthenticated::class,
             'password.set' => EnsurePasswordSet::class,
+            'root' => EnsureUserIsSuperAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

@@ -4,6 +4,8 @@ namespace App\Observers;
 
 use App\Models\AuthProvider;
 use App\Models\User;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 
 class AuthProviderObserver

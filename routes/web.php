@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\DestroyOtherSessionsController;
 use App\Http\Controllers\Auth\UpdatePasswordController;
 use App\Http\Controllers\CurrentUserController;
 use App\Http\Controllers\ProfileInformationController;
+use App\Http\Controllers\Root\UserController;
 use Illuminate\Support\Facades\Route;
 
 require __DIR__ . '/auth.php';
@@ -22,7 +23,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::delete('/user/sessions/{id}', [DatabaseSessionController::class, 'destroy']);
     Route::delete('/user/other-sessions', DestroyOtherSessionsController::class);
 
-    Route::get('/maintenance', fn() => response()->json(app()->isDownForMaintenance()))->name('maintenance');
+    Route::group(['middleware' => 'root'], function () {
+        Route::get('/root/users', [UserController::class, 'index']);
+    });
+
 });
 
 

@@ -13,6 +13,7 @@
         "laravel/socialite": "^5.13",
         "laravel/tinker": "^2.9",
         "mobiledetect/mobiledetectlib": "^4.8",
+        "spatie/laravel-permission": "^6.7",
         "taylornetwork/laravel-username-generator": "^2.8"
     },
     "require-dev": {
