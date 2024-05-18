@@ -10,7 +10,6 @@
     "require": {
         "php": "^8.2",
         "ext-gd": "*",
-        "ext-imagick": "*",
         "intervention/image": "^3.6",
         "laravel/breeze": "^2.0",
         "laravel/framework": "^11.0",
