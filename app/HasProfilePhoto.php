@@ -7,6 +7,8 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Encoders\AvifEncoder;
+
 
 trait HasProfilePhoto
 {
@@ -79,7 +81,7 @@ trait HasProfilePhoto
     {
         $manager = new ImageManager(new Driver());
         $img = $manager->read($photo->getRealPath());
-        $img->resize($size, $size)->toJpeg();
+        $img->resize($size, $size);
         $img->save($photo->getRealPath());
     }
 
