@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\User;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
@@ -29,7 +28,7 @@ class DatabaseSeeder extends Seeder
     {
         $role = Role::create(['name' => 'super-admin']);
 
-        $user = UserFactory::new()->create([
+        return UserFactory::new()->create([
             'name' => 'Super Admin',
             'email' => 'admin@account.com',
             'password' => bcrypt('password'),
