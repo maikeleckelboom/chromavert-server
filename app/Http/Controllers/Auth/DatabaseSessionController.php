@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Agent;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Auth\DatabaseSessionResource;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class DatabaseSessionController extends Controller
@@ -25,9 +26,23 @@ class DatabaseSessionController extends Controller
         $sessions = DB::connection(config('session.connection'))->table(config('session.table', 'sessions'))
             ->where('user_id', $request->user()->getAuthIdentifier())
             ->orderBy('last_activity', 'desc')
-            ->get();
+            ->get()
+            ->collect();
 
-        return response()->json(DatabaseSessionResource::collection($sessions));
+        return response()->json(
+            $sessions->map(function ($session) use ($request) {
+                $agent = $this->createAgent($session);
+                return [
+                    'id' => $this->id,
+                    'ipAddress' => $this->ip_address,
+                    'device' => $this->getDeviceType($agent),
+                    'platform' => $agent->platform(),
+                    'browser' => $agent->browser(),
+                    'isCurrentDevice' => $this->id === $request->session()->getId(),
+                    'lastActive' => Carbon::createFromTimestamp($this->last_activity)->diffForHumans(),
+                ];
+            })->all()
+        );
     }
 
     /**
@@ -66,4 +81,21 @@ class DatabaseSessionController extends Controller
             ->delete();
     }
 
+    /**
+     * Create a new agent instance from the given session.
+     */
+    private function createAgent($session): Agent
+    {
+        return tap(new Agent(), fn($agent) => $agent->setUserAgent($session->user_agent));
+    }
+
+    private function getDeviceType($agent): string
+    {
+        return match (true) {
+            $agent->isDesktop() => 'desktop',
+            $agent->isTablet() => 'tablet',
+            $agent->isMobile() => 'mobile',
+            default => 'unknown',
+        };
+    }
 }

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 use TaylorNetwork\UsernameGenerator\FindSimilarUsernames;
 use TaylorNetwork\UsernameGenerator\GeneratesUsernames;
 use App\Traits\HasProfilePhoto;
@@ -27,6 +28,7 @@ class User extends Authenticatable implements MustVerifyEmail
     use FindSimilarUsernames;
     use GeneratesUsernames;
     use SoftDeletes;
+    use HasRoles;
 
     private string|null $password;
 
