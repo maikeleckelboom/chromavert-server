@@ -19,7 +19,7 @@ class DatabaseSessionController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        if (config('session.driver') !== 'database') {
+        if (!$this->isDatabaseDriver()) {
             return response()->json(['message' => 'session-driver-not-supported']);
         }
 
@@ -64,10 +64,45 @@ class DatabaseSessionController extends Controller
 
         try {
             $this->invalidate($id);
-            return response()->json(['message' => 'session-invalidated']);
         } catch (Exception $e) {
             throw new AuthenticationException($e->getMessage());
         }
+
+        return response()->json(['message' => 'session-invalidated']);
+    }
+
+    /**
+     * Destroy all other sessions for the current user.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     * @throws AuthenticationException
+     */
+    public function destroyOtherSessions(Request $request): JsonResponse
+    {
+        if (!$this->isDatabaseDriver()) {
+            return response()->json(['message' => 'session-driver-not-supported']);
+        }
+
+        try {
+            $this->invalidateOtherSessions($request);
+        } catch (Exception $e) {
+            throw new AuthenticationException($e->getMessage());
+        }
+
+        return response()->json(['message' => 'other-sessions-invalidated']);
+    }
+
+    /**
+     * @param $request
+     * @return void
+     */
+    private function invalidateOtherSessions($request): void
+    {
+        DB::connection(config('session.connection'))->table(config('session.table', 'sessions'))
+            ->where('user_id', $request->user()->getAuthIdentifier())
+            ->where('id', '!=', $request->session()->getId())
+            ->delete();
     }
 
     /**
@@ -89,6 +124,9 @@ class DatabaseSessionController extends Controller
         return tap(new Agent(), fn($agent) => $agent->setUserAgent($session->user_agent));
     }
 
+    /**
+     * Get the device type for the given agent.
+     */
     private function getDeviceType($agent): string
     {
         return match (true) {
@@ -97,5 +135,13 @@ class DatabaseSessionController extends Controller
             $agent->isMobile() => 'mobile',
             default => 'unknown',
         };
+    }
+
+    /**
+     * Determine if the session driver is using the database.
+     */
+    private function isDatabaseDriver(): bool
+    {
+        return config('session.driver') === 'database';
     }
 }

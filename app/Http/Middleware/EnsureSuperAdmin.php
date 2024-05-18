@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class EnsureUserIsSuperAdmin
+class EnsureSuperAdmin
 {
     /**
      * Handle an incoming request.

@@ -7,7 +7,6 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Encoders\AvifEncoder;
 
 
 trait HasProfilePhoto
@@ -19,11 +18,14 @@ trait HasProfilePhoto
      * @param string $storagePath
      * @return void
      */
-    public function updateProfilePhoto(UploadedFile $photo, string $storagePath = 'profile-photos'): void
+    public function updateProfilePhoto(
+        UploadedFile $photo,
+        string $storagePath = 'profile-photos',
+    ): void
     {
-        if ($photo->getClientOriginalExtension() !== 'avif') {
-            $this->resizeImage($photo, 192);
-        }
+//        if ($photo->getClientOriginalExtension() !== 'avif') {
+//           $this->resizeImage($photo, 192);
+//        }
 
         tap($this->profile_photo_path, function ($previous) use ($photo, $storagePath) {
             $this->forceFill([
@@ -31,6 +33,7 @@ trait HasProfilePhoto
                     $storagePath, ['disk' => $this->profilePhotoDisk()]
                 ),
             ])->save();
+
             if ($previous) {
                 Storage::disk($this->profilePhotoDisk())->delete($previous);
             }
@@ -48,7 +51,8 @@ trait HasProfilePhoto
             return;
         }
 
-        Storage::disk($this->profilePhotoDisk())->delete($this->profile_photo_path);
+        Storage::disk($this->profilePhotoDisk())
+            ->delete($this->profile_photo_path);
 
         $this->forceFill([
             'profile_photo_path' => null,
@@ -79,12 +83,12 @@ trait HasProfilePhoto
         });
     }
 
-    protected function resizeImage(UploadedFile $photo, int $size): void
+    protected function resizeImage(UploadedFile $photo, int $size)
     {
         $manager = new ImageManager(new Driver());
         $img = $manager->read($photo->getRealPath());
         $img->resize($size, $size);
-        $img->save($photo->getRealPath());
+        return $img->save($photo->getRealPath());
     }
 
     protected function removeStoragePathPrefix($path): string
