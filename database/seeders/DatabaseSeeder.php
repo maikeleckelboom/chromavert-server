@@ -30,8 +30,8 @@ class DatabaseSeeder extends Seeder
         $role = Role::create(['name' => 'super-admin']);
 
         $user = User::create([
-            'name' => 'Admin User',
-            'email' => 'root@user.com',
+            'name' => 'Super Admin',
+            'email' => 'admin@example.com',
             'password' => bcrypt('password'),
         ]);
 
