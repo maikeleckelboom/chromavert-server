@@ -21,7 +21,11 @@ trait HasProfilePhoto
      */
     public function updateProfilePhoto(UploadedFile $photo, string $storagePath = 'profile-photos'): void
     {
-        $this->resizeImage($photo, 192);
+        // If the photo is not an AVIF file, resize it to 192x192
+        // We only resize the image if it's not an AVIF file because AVIF files are already compressed
+        if ($photo->getClientOriginalExtension() !== 'avif') {
+            $this->resizeImage($photo, 192);
+        }
 
         tap($this->profile_photo_path, function ($previous) use ($photo, $storagePath) {
             $this->forceFill([
