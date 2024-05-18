@@ -16,8 +16,7 @@ class AuthProviderService
     public function all(): Collection
     {
         $user = User::findOrFail(auth()->id());
-        return collect($user->authProviders)
-            ->map(fn($provider) => new AuthProviderResource($provider));
+        return collect($user->authProviders)->map(fn($provider) => new AuthProviderResource($provider));
     }
 
     public function find($id)

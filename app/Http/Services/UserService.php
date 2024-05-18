@@ -13,7 +13,6 @@ use TaylorNetwork\UsernameGenerator\Generator;
 
 class UserService
 {
-
     public function getCurrentUser(): User
     {
         return $this->getUserById(auth()->id());
