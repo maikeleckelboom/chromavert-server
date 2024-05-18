@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\HasProfilePhoto;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,7 +12,6 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use TaylorNetwork\UsernameGenerator\FindSimilarUsernames;
 use TaylorNetwork\UsernameGenerator\GeneratesUsernames;
-use App\Traits\HasProfilePhoto;
 
 /**
  * @method static create(array $data)

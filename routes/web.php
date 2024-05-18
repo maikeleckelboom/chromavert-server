@@ -1,11 +1,11 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthProviderController;
-use App\Http\Controllers\Auth\DatabaseSessionController;
-use App\Http\Controllers\Auth\DestroyOtherSessionsController;
-use App\Http\Controllers\Auth\UpdatePasswordController;
+use App\Http\Controllers\Account\AuthProviderController;
+use App\Http\Controllers\Account\DatabaseSessionController;
+use App\Http\Controllers\Account\DestroyOtherSessionsController;
+use App\Http\Controllers\Account\ProfileInformationController;
+use App\Http\Controllers\Account\UpdatePasswordController;
 use App\Http\Controllers\CurrentUserController;
-use App\Http\Controllers\ProfileInformationController;
 use App\Http\Controllers\Root\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,7 +26,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::group(['middleware' => 'root'], function () {
         Route::get('/root/users', [UserController::class, 'index']);
     });
-
 });
 
 

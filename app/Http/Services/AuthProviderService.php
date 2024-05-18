@@ -73,7 +73,7 @@ class AuthProviderService
     private function connect(User $user, ProviderUser $providerUser, $provider): void
     {
         $authProvider = $this->firstOrNew($provider, $providerUser);
-        $authProvider->user()->associate($user);
+        $authProvider->user()->associate($user)->save();
         if ($authProvider->save()) {
             $authProvider->touch();
         }

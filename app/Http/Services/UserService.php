@@ -73,7 +73,7 @@ class UserService
         $user->sendEmailVerificationNotification();
     }
 
-    protected function generateUsername(string $username): string
+    private function generateUsername(string $username): string
     {
         return (new Generator())->generate($username);
     }

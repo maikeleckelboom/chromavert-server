@@ -2,7 +2,10 @@
     "name": "laravel/laravel",
     "type": "project",
     "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "keywords": [
+        "laravel",
+        "framework"
+    ],
     "license": "MIT",
     "require": {
         "php": "^8.2",
@@ -14,7 +17,8 @@
         "laravel/tinker": "^2.9",
         "mobiledetect/mobiledetectlib": "^4.8",
         "spatie/laravel-permission": "^6.7",
-        "taylornetwork/laravel-username-generator": "^2.8"
+        "taylornetwork/laravel-username-generator": "^2.8",
+        "ext-gd": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

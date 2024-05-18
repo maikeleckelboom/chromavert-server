@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Traits;
+namespace App;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Http\UploadedFile;
@@ -13,7 +13,7 @@ trait HasProfilePhoto
     /**
      * Update the user's profile photo.
      *
-     * @param \Illuminate\Http\UploadedFile $photo
+     * @param UploadedFile $photo
      * @param string $storagePath
      * @return void
      */
@@ -54,7 +54,7 @@ trait HasProfilePhoto
     /**
      * Get the URL to the user's profile photo.
      *
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute
+     * @return Attribute
      */
     public function profilePhotoUrl(): Attribute
     {
