@@ -79,7 +79,7 @@ trait HasProfilePhoto
     {
         $manager = new ImageManager(new Driver());
         $img = $manager->read($photo->getRealPath());
-        $img->resize($size, $size);
+        $img->resize($size, $size)->toJpeg();
         $img->save($photo->getRealPath());
     }
 
