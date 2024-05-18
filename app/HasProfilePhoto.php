@@ -20,7 +20,7 @@ trait HasProfilePhoto
      */
     public function updateProfilePhoto(
         UploadedFile $photo,
-        string $storagePath = 'profile-photos',
+        string       $storagePath = 'profile-photos',
     ): void
     {
 //        if ($photo->getClientOriginalExtension() !== 'avif') {
@@ -74,12 +74,12 @@ trait HasProfilePhoto
             $resolvedUrl = $this->profile_photo_path
                 ? Storage::disk($this->profilePhotoDisk())->url($this->profile_photo_path)
                 : $this->defaultProfilePhotoUrl();
+//
+//            if (config('app.env') === 'local') {
+//                return $this->removeStoragePathPrefix($resolvedUrl);
+//            }
 
-            if (config('app.env') === 'local') {
-                return $this->removeStoragePathPrefix($resolvedUrl);
-            }
-
-            return $resolvedUrl;
+            return $this->removeStoragePathPrefix($resolvedUrl);
         });
     }
 
