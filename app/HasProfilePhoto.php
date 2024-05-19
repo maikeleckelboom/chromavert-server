@@ -18,14 +18,8 @@ trait HasProfilePhoto
      * @param string $storagePath
      * @return void
      */
-    public function updateProfilePhoto(
-        UploadedFile $photo,
-        string       $storagePath = 'profile-photos',
-    ): void
+    public function updateProfilePhoto(UploadedFile $photo, string $storagePath = 'profile-photos'): void
     {
-//        if ($photo->getClientOriginalExtension() !== 'avif') {
-//           $this->resizeImage($photo, 192);
-
         tap($this->profile_photo_path, function ($previous) use ($photo, $storagePath) {
             $this->forceFill([
                 'profile_photo_path' => $photo->storePublicly(
@@ -74,37 +68,20 @@ trait HasProfilePhoto
                 ? Storage::disk($this->profilePhotoDisk())->url($this->profile_photo_path)
                 : $this->defaultProfilePhotoUrl();
 
-            return $this->removeStoragePathPrefix($resolvedUrl);
+            return $this->removeStoragePrefix($resolvedUrl);
         });
     }
 
-    protected function resizeImage(UploadedFile $photo, int $size): UploadedFile
-    {
-        $manager = new ImageManager(new Driver());
-        $img = $manager->read($photo->getRealPath());
-        $img->resize($size, $size);
-
-        $img->save($photo->getRealPath());
-
-        return $photo;
-    }
-
-    protected function removeStoragePathPrefix($path): string
+    protected function removeStoragePrefix($path): string
     {
         return str_replace('storage/', '', $path);
     }
-
 
     protected function profilePhotoIsUrl(): bool
     {
         return $this->profile_photo_path !== null && filter_var($this->profile_photo_path, FILTER_VALIDATE_URL);
     }
 
-    /**
-     * Get the disk that profile photos should be stored on.
-     *
-     * @return string
-     */
     protected function profilePhotoDisk()
     {
         return 'public';

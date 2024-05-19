@@ -89,13 +89,9 @@ class AuthProviderController extends Controller
 
     private function getParamsFromRequest($request): array
     {
-        $params = [];
-        if ($request->has('email')) {
-            $params['login_hint'] = $request->get('email');
-        } else {
-            $params['prompt'] = 'select_account';
-        }
-        return $params;
+        return $request->has('email')
+            ? ['login_hint' => $request->get('email')]
+            : ['prompt' => 'select_account'];
     }
 
     private function isLastProvider(): bool

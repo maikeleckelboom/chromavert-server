@@ -15,20 +15,7 @@ class UserResource extends JsonResource
      *
      * @return array<string, mixed>
      */
-    #[ArrayShape([
-        'id' => "int",
-        'name' => "string|null",
-        'email' => "string",
-        'username' => "string|null",
-        'profilePhotoUrl' => "string|null",
-        'emailVerified' => "bool",
-        'password' => 'bool',
-        'createdAt' => "string",
-        'updatedAt' => "string",
-        'photo' => 'string|null',
-        'roles' => 'array',
-        'permissions' => 'array',
-    ])] public function toArray(Request $request): array
+    public function toArray(Request $request): array
     {
         return [
             'id' => $this->id,

@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class DatabaseSessionController extends Controller
+class BrowserSessionController extends Controller
 {
 
     /**
