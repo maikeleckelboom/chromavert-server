@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Account;
+namespace App\Http\Controllers\User;
 
 use App\Http\Agent;
 use App\Http\Controllers\Controller;
@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class BrowserSessionController extends Controller
+class SessionController extends Controller
 {
 
     /**

@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\User\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\RegisteredUserData;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
@@ -21,7 +20,7 @@ class RegisteredUserController extends Controller
     public function store(RegisterRequest $request): Response
     {
 
-        $validated = new RegisteredUserData(...$request->validated());
+        $validated = $request->validated();
 
         $user = User::create([
             'name' => $validated->name,

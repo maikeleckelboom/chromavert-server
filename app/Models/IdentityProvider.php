@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static findOrFail($id)
  * @method static where(string $string, mixed $input)
  */
-class AuthProvider extends Model
+class IdentityProvider extends Model
 {
     use HasFactory;
 

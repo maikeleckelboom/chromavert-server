@@ -4,19 +4,12 @@ namespace App\Http\Services;
 
 use App\Models\User;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Validator;
 use TaylorNetwork\UsernameGenerator\Generator;
 
 
 class UserService
 {
-    public function getCurrentUser(): User
-    {
-        return $this->getUserById(auth()->id());
-    }
 
     public function getUserById(int $id): User
     {
@@ -25,7 +18,7 @@ class UserService
 
     public function deleteUser(User $user): void
     {
-        $user->authProviders()->delete();
+        $user->identityProviders()->delete();
         $user->deleteProfilePhoto();
         $user->forceDelete();
     }

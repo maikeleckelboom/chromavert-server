@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
-use App\Models\AuthProvider;
+use App\Models\IdentityProvider;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -42,7 +42,7 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if ($this->isRegisteredWithAuthProvider() && !$this->hasPassword()) {
+        if ($this->isRegisteredWithProvider() && !$this->hasPassword()) {
             throw ValidationException::withMessages([
                 'email' => 'This email is associated with an external provider',
             ]);
@@ -93,9 +93,9 @@ class LoginRequest extends FormRequest
     /**
      * Determine if the user has registered with an external provider.
      */
-    private function isRegisteredWithAuthProvider()
+    private function isRegisteredWithProvider()
     {
-        return AuthProvider::where('provider_user_email', $this->input('email'))->exists();
+        return IdentityProvider::where('provider_user_email', $this->input('email'))->exists();
     }
 
     /**

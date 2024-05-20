@@ -2,8 +2,8 @@
 
 namespace App\Http\Services;
 
-use App\Http\Resources\Auth\AuthProviderResource;
-use App\Models\AuthProvider;
+use App\Http\Resources\IdentityProviderResource;
+use App\Models\IdentityProvider;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Collection;
@@ -11,17 +11,17 @@ use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Contracts\User as ProviderUser;
 use TaylorNetwork\UsernameGenerator\Facades\UsernameGenerator;
 
-class AuthProviderService
+class IdentityProviderService
 {
     public function all(): Collection
     {
         $user = User::findOrFail(auth()->id());
-        return collect($user->authProviders)->map(fn($provider) => new AuthProviderResource($provider));
+        return collect($user->identityProviders)->map(fn($provider) => new IdentityProviderResource($provider));
     }
 
-    public function find($id)
+    public function findProviderForAuthUser($id)
     {
-        return AuthProvider::where('user_id', auth()->id())->findOrFail($id);
+        return IdentityProvider::where('user_id', auth()->id())->findOrFail($id);
     }
 
     public function findOrCreate(ProviderUser $providerUser, $provider): User
@@ -54,9 +54,9 @@ class AuthProviderService
         return $user;
     }
 
-    public function firstOrNew(string $provider, ProviderUser $providerUser): AuthProvider
+    public function firstOrNew(string $provider, ProviderUser $providerUser): IdentityProvider
     {
-        return AuthProvider::firstOrNew([
+        return IdentityProvider::firstOrNew([
             'provider' => $provider,
             'provider_user_id' => $providerUser->getId(),
             'provider_user_name' => $providerUser->getName(),
@@ -68,7 +68,7 @@ class AuthProviderService
 
     public function disconnect($id): bool
     {
-        $authProvider = AuthProvider::findOrFail($id);
+        $authProvider = IdentityProvider::findOrFail($id);
         return $authProvider->delete();
     }
 

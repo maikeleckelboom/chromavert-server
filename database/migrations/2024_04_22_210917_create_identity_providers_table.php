@@ -11,7 +11,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('auth_providers', function (Blueprint $table) {
+        Schema::create('identity_providers', function (Blueprint $table) {
             $table->id();
             $table->string('provider');
             $table->string('provider_user_name')->nullable();
@@ -30,6 +30,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('auth_providers');
+        Schema::dropIfExists('identity_providers');
     }
 };

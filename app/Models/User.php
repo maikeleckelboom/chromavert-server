@@ -74,14 +74,9 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * @return HasMany
      */
-    public function authProviders(): HasMany
+    public function identityProviders(): HasMany
     {
-        return $this->hasMany(AuthProvider::class);
-    }
-
-    public function isPasswordNull(): bool
-    {
-        return is_null($this->password);
+        return $this->hasMany(IdentityProvider::class);
     }
 
     public static function checkIfPasswordNull(User $user): bool

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Account;
+namespace App\Http\Controllers\User;
 
 use App\Http\Services\UserService;
 use Illuminate\Http\JsonResponse;
@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
-class ProfileInformationController
+class ProfileController
 {
     /**
      * @param Request $request
@@ -26,7 +26,7 @@ class ProfileInformationController
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'username' => ['required', 'string', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'photo' => ['mimes:jpg,jpeg,png,svg,avif,gif', 'max:1024'],
+            'photo' => ['mimes:jpg,jpeg,png,svg,webp,avif,gif', 'max:1024'],
         ])->validateWithBag('updateProfileInformation');
 
         if ($request->only('__delete_photo')) {

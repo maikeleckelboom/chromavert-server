@@ -1,11 +1,10 @@
 <?php
 
-use App\Http\Controllers\Account\AuthProviderController;
-use App\Http\Controllers\Account\CurrentUserController;
-use App\Http\Controllers\Account\BrowserSessionController;
-use App\Http\Controllers\Account\ProfileInformationController;
-use App\Http\Controllers\Account\UpdatePasswordController;
-use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\User\Auth\UpdatePasswordController;
+use App\Http\Controllers\User\IdentityProviderController;
+use App\Http\Controllers\User\SessionController;
+use App\Http\Controllers\User\ProfileController;
+use App\Http\Controllers\User\UserController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
@@ -13,28 +12,26 @@ require __DIR__ . '/auth.php';
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
 
-    Route::get('/user', [CurrentUserController::class, 'index']);
-    Route::delete('/user', [ProfileInformationController::class, 'destroy']);
-    Route::put('/user/profile-information', [ProfileInformationController::class, 'update']);
+    Route::get('/user', [UserController::class, 'index']);
+    Route::delete('/user', [ProfileController::class, 'destroy']);
+    Route::put('/user/profile', [ProfileController::class, 'update']);
     Route::put('/user/password', [UpdatePasswordController::class, 'update']);
 
-    //* Maybe identity_provider */
-    Route::get('/user/providers', [AuthProviderController::class, 'index']);
-    Route::delete('/user/providers/{id}', [AuthProviderController::class, 'disconnect']);
+    Route::get('/user/identity-providers', [IdentityProviderController::class, 'index']);
+    Route::delete('/user/identity-providers/{id}', [IdentityProviderController::class, 'disconnect']);
 
-    Route::get('/user/sessions', [BrowserSessionController::class, 'index']);
-    Route::delete('/user/sessions/{id}', [BrowserSessionController::class, 'destroy']);
-    Route::delete('/user/other-sessions', [BrowserSessionController::class, 'destroyOtherSessions']);
-
-
-    Route::get('/admin/users', [UserController::class, 'index'])->middleware('admin');
-
+    Route::get('/user/sessions', [SessionController::class, 'index']);
+    Route::delete('/user/sessions/{id}', [SessionController::class, 'destroy']);
+    Route::delete('/user/other-sessions', [SessionController::class, 'destroyOtherSessions']);
 });
 
-// DEVELOPMENT ONLY
+
+/**
+ * Do NOT forget to remove this route in production
+ *
+ * ** This route is for development purposes only **
+ * _________________________________________________
+ */
 Route::get('/symlink', fn() => Artisan::call('storage:link'));
-Route::get('/', fn() => [
-    'PHP' => PHP_VERSION,
-    'Laravel' => app()->version(),
-]);
+Route::get('/', fn() => ['PHP' => PHP_VERSION, 'Laravel' => app()->version()]);
 

@@ -1,13 +1,13 @@
 <?php
 
-use App\Http\Controllers\Account\AuthProviderController;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\EmailVerificationNotificationController;
-use App\Http\Controllers\Auth\NewPasswordController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\User\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\User\Auth\EmailVerificationNotificationController;
+use App\Http\Controllers\User\Auth\NewPasswordController;
+use App\Http\Controllers\User\Auth\PasswordResetLinkController;
+use App\Http\Controllers\User\Auth\RegisteredUserController;
+use App\Http\Controllers\User\Auth\VerifyEmailController;
+use App\Http\Controllers\User\IdentityProviderController;
 
 Route::post('/register', [RegisteredUserController::class, 'store'])
                 ->middleware('guest')
@@ -37,9 +37,9 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
                 ->middleware('auth')
                 ->name('logout');
 
-Route::get('/auth/{provider}', [AuthProviderController::class, 'redirect'])
+Route::get('/auth/{provider}', [IdentityProviderController::class, 'redirect'])
                 ->name('auth.provider.redirect');
 
-Route::get('/auth/{provider}/callback', [AuthProviderController::class, 'callback'])
+Route::get('/auth/{provider}/callback', [IdentityProviderController::class, 'callback'])
                 ->name('auth.provider.callback');
 

@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-class RedirectRouteProvider
+class AuthRedirectProvider
 {
     public static function getRoute(string $key): string
     {

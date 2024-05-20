@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Account;
+namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Http\Services\AuthProviderService;
-use App\Models\AuthProvider;
+use App\Http\Services\IdentityProviderService;
+use App\Models\IdentityProvider;
 use App\Models\User;
-use App\Providers\RedirectRouteProvider;
+use App\Providers\AuthRedirectProvider;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -14,17 +14,17 @@ use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\InvalidStateException;
 
-class AuthProviderController extends Controller
+class IdentityProviderController extends Controller
 {
-    public function index(AuthProviderService $providerService): JsonResponse
+    public function index(IdentityProviderService $providerService): JsonResponse
     {
         $providers = $providerService->all();
         return response()->json($providers);
     }
 
-    public function disconnect(AuthProviderService $providerService, $id): JsonResponse
+    public function disconnect(IdentityProviderService $providerService, $id): JsonResponse
     {
-        $providerUser = $providerService->find($id)->user;
+        $providerUser = $providerService->findProviderForAuthUser($id)->user;
         $user = User::findOrFail($providerUser->id);
 
         if ($user->id !== auth()->id()) {
@@ -60,11 +60,11 @@ class AuthProviderController extends Controller
             return Socialite::driver($provider)->redirect();
         }
 
-        $params = $this->getParamsFromRequest(request());
+        $params = $this->getRequestParams(request());
         return Socialite::driver($provider)->with($params)->redirect();
     }
 
-    public function callback(AuthProviderService $providerService, $provider): RedirectResponse
+    public function callback(IdentityProviderService $providerService, $provider): RedirectResponse
     {
         $SPA_URL = config('app.frontend_url');
 
@@ -73,7 +73,7 @@ class AuthProviderController extends Controller
             $authenticatableUser = $providerService->findOrCreate($providerUser, $provider);
         } catch (InvalidStateException $e) {
             $error = '&error=' . request()->has('error') ? Str::slug($e->getMessage()) : 'invalid-state';
-            $path = RedirectRouteProvider::getRoute(Auth::check() ? 'onAuthOnly' : 'onGuestOnly');
+            $path = AuthRedirectProvider::getRoute(Auth::check() ? 'onAuthOnly' : 'onGuestOnly');
             return redirect()->to($SPA_URL . $path . $error);
         }
 
@@ -82,12 +82,11 @@ class AuthProviderController extends Controller
         }
 
         $authenticatableUser->touch();
-        $redirectUrl = $SPA_URL . RedirectRouteProvider::getRoute('onLogin');
-
+        $redirectUrl = $SPA_URL . AuthRedirectProvider::getRoute('onLogin');
         return redirect()->to($redirectUrl);
     }
 
-    private function getParamsFromRequest($request): array
+    private function getRequestParams($request): array
     {
         return $request->has('email')
             ? ['login_hint' => $request->get('email')]
@@ -96,7 +95,7 @@ class AuthProviderController extends Controller
 
     private function isLastProvider(): bool
     {
-        return AuthProvider::where('user_id', auth()->id())->count() === 1;
+        return IdentityProvider::where('user_id', auth()->id())->count() === 1;
     }
 
     private function willBeLockedOut($user): bool

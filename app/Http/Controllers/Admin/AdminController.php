@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 
-class UserController extends Controller
+class AdminController extends Controller
 {
     public function index()
     {
