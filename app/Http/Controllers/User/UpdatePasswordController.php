@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\User\Auth;
+namespace App\Http\Controllers\User;
 
 use App\Http\Services\UserService;
 use App\Models\User;
@@ -47,7 +47,7 @@ class UpdatePasswordController
      */
     private function validatePasswordInput(User $user, array $input): array
     {
-        if (User::checkIfPasswordNull($user)) {
+        if (!$user->getAuthPassword()) {
             return Validator::make($input, [
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
             ])->validateWithBag('updatePassword');

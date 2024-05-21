@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\User\Auth;
+namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
@@ -23,9 +23,9 @@ class RegisteredUserController extends Controller
         $validated = $request->validated();
 
         $user = User::create([
-            'name' => $validated->name,
-            'email' => $validated->email,
-            'password' => Hash::make($validated->password),
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
         ]);
 
         event(new Registered($user));

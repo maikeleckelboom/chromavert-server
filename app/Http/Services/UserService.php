@@ -11,7 +11,7 @@ use TaylorNetwork\UsernameGenerator\Generator;
 class UserService
 {
 
-    public function getUserById(int $id): User
+    public function getUserById(int $id)
     {
         return User::findOrFail($id);
     }
@@ -65,7 +65,7 @@ class UserService
         $user->sendEmailVerificationNotification();
     }
 
-    private function generateUsername(string $username): string
+    protected function generateUsername(string $username): string
     {
         return (new Generator())->generate($username);
     }

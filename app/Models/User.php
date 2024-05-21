@@ -30,8 +30,6 @@ class User extends Authenticatable implements MustVerifyEmail
     use SoftDeletes;
     use HasRoles;
 
-    private string|null $password;
-
 
     /**
      * @var array<int, string>
@@ -79,8 +77,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(IdentityProvider::class);
     }
 
-    public static function checkIfPasswordNull(User $user): bool
+    public function hasProvider(string $provider, string $providerUserId): bool
     {
-        return is_null($user->password);
+        return $this->identityProviders()
+            ->where('provider', $provider)
+            ->where('provider_user_id', $providerUserId)
+            ->exists();
     }
 }

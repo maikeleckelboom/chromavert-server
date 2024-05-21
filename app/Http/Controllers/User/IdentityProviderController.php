@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Services\IdentityProviderService;
+use App\Http\Services\UserService;
 use App\Models\IdentityProvider;
 use App\Models\User;
 use App\Providers\AuthRedirectProvider;
@@ -24,67 +25,70 @@ class IdentityProviderController extends Controller
 
     public function disconnect(IdentityProviderService $providerService, $id): JsonResponse
     {
-        $providerUser = $providerService->findProviderForAuthUser($id)->user;
+        $providerUser = $providerService->getProviderById($id)->user;
         $user = User::findOrFail($providerUser->id);
 
         if ($user->id !== auth()->id()) {
             return response()->json([
                 'message' => "You cannot disconnect other users' providers.",
-                'cause' => 'cannot-disconnect-other-user-provider',
+                'description' => 'The provider does not belong to the authenticated user.',
             ], 403);
         }
 
         if ($this->willBeLockedOut($user)) {
             return response()->json([
-                'cause' => 'cannot-disconnect-last-provider',
-                'message' => 'You cannot disconnect the last provider. Create a password to continue.',
+                'message' => 'You cannot disconnect the last provider.',
+                'description' => 'You will be locked out if you disconnect this provider.',
             ], 400);
         }
 
         if ($providerService->disconnect($id)) {
             return response()->json([
-                'cause' => 'has-disconnected-provider',
                 'message' => 'The provider has been disconnected.',
+                'description' => 'The provider has been successfully disconnected.',
             ], 204);
         };
 
         return response()->json([
-            'cause' => 'provider-not-found',
             'message' => 'The provider was not found.',
+            'description' => 'The provider does not exist.',
         ], 404);
     }
 
     public function redirect(string $provider): RedirectResponse
     {
-        if (!Auth::check()) {
-            return Socialite::driver($provider)->redirect();
-        }
-
+        if (!Auth::check()) return Socialite::driver($provider)->redirect();
         $params = $this->getRequestParams(request());
         return Socialite::driver($provider)->with($params)->redirect();
     }
 
-    public function callback(IdentityProviderService $providerService, $provider): RedirectResponse
+    public function callback($provider,IdentityProviderService $providerService, UserService $userService): RedirectResponse
     {
         $SPA_URL = config('app.frontend_url');
+        $redirectUrl = $SPA_URL . AuthRedirectProvider::getRoute('onLogin');
 
         try {
             $providerUser = Socialite::driver($provider)->user();
-            $authenticatableUser = $providerService->findOrCreate($providerUser, $provider);
         } catch (InvalidStateException $e) {
             $error = '&error=' . request()->has('error') ? Str::slug($e->getMessage()) : 'invalid-state';
             $path = AuthRedirectProvider::getRoute(Auth::check() ? 'onAuthOnly' : 'onGuestOnly');
             return redirect()->to($SPA_URL . $path . $error);
         }
 
-        if (!Auth::check()) {
+        if(Auth::check()) {
+            // Connect the provider to the authenticated user
+            $user = $userService->getUserById(Auth::id());
+            $providerService->connect($user, $providerUser, $provider);
+        } else {
+            // Authenticate the user
+            $authenticatableUser = $providerService->getAuthenticatableUser($providerUser, $provider);
             auth()->login($authenticatableUser, true);
         }
 
-        $authenticatableUser->touch();
-        $redirectUrl = $SPA_URL . AuthRedirectProvider::getRoute('onLogin');
         return redirect()->to($redirectUrl);
     }
+
+
 
     private function getRequestParams($request): array
     {
