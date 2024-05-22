@@ -24,17 +24,18 @@ class DatabaseSeeder extends Seeder
         $this->createTestUser();
     }
 
-    public function createAdminUser(): User
+    public function createAdminUser(): void
     {
         $role = Role::create(['name' => 'super-admin']);
+        $role->givePermissionTo(Permission::all());
 
-        return UserFactory::new()->create([
+        $user = UserFactory::new()->create([
             'name' => 'Super Admin',
             'email' => 'admin@account.com',
             'password' => bcrypt('password'),
         ]);
 
-        return $user->assignRole($role);
+        $user->assignRole($role);
     }
 
     /**

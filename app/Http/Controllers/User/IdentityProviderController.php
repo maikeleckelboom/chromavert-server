@@ -4,7 +4,6 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Services\IdentityProviderService;
-use App\Http\Services\UserService;
 use App\Models\IdentityProvider;
 use App\Models\User;
 use App\Providers\AuthRedirectProvider;
