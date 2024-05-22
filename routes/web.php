@@ -1,12 +1,12 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\User\IdentityProviderController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\SessionController;
 use App\Http\Controllers\User\UpdatePasswordController;
 use App\Http\Controllers\User\UserController;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Route;
 
 require __DIR__ . '/auth.php';
 

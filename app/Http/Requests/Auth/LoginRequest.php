@@ -44,7 +44,7 @@ class LoginRequest extends FormRequest
 
         if ($this->isRegisteredWithProvider() && !$this->hasPassword()) {
             throw ValidationException::withMessages([
-                'email' => 'This email is associated with an external provider',
+                'email' => 'This email is associated with an external provider.',
             ]);
         }
 
