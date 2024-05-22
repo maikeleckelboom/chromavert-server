@@ -21,3 +21,4 @@ test('can authenticate using socialite provider', function () {
     $response = $this->get('/auth/github/callback');
     $response->assertRedirect(config('app.frontend_url').'/account');
 });
+

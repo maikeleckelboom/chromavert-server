@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Providers\AuthRedirectProvider;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
@@ -22,10 +23,40 @@ class IdentityProviderController extends Controller
         return response()->json($providers);
     }
 
+    public function redirect(string $provider): RedirectResponse
+    {
+        return Socialite::driver($provider)
+            ->scopes($this->getScopes($provider))
+            ->with($this->getParams(request(), $provider))
+            ->redirect();
+    }
+
+    public function callback(IdentityProviderService $providerService, $provider): RedirectResponse
+    {
+        $SPA_URL = config('app.frontend_url');
+
+        try {
+            $providerUser = Socialite::driver($provider)->user();
+            $authenticatableUser = $providerService->findOrCreate($providerUser, $provider);
+        } catch (InvalidStateException $e) {
+            $error = '&error=' . request()->has('error') ? Str::slug($e->getMessage()) : 'invalid-state';
+            $path = AuthRedirectProvider::getRoute(Auth::check() ? 'onAuthOnly' : 'onGuestOnly');
+            return redirect()->to($SPA_URL . $path . $error);
+        }
+
+        if (!Auth::check()) {
+            auth()->login($authenticatableUser, true);
+        }
+
+        $authenticatableUser->touch();
+        $redirectUrl = $SPA_URL . AuthRedirectProvider::getRoute('onLogin');
+        return redirect()->to($redirectUrl);
+    }
+
     public function disconnect(IdentityProviderService $providerService, $id): JsonResponse
     {
-        $providerUser = $providerService->findProviderForAuthUser($id);
-        $user = User::findOrFail($providerUser->id);
+        $identityProvider = $providerService->findProviderForAuthUser($id);
+        $user = User::findOrFail($identityProvider->user->id);
 
         if ($user->id !== auth()->id()) {
             return response()->json([
@@ -54,36 +85,24 @@ class IdentityProviderController extends Controller
         ], 404);
     }
 
-    public function redirect(string $provider): RedirectResponse
+
+    private function getScopes($provider): array
     {
-        if (!Auth::check()) return Socialite::driver($provider)->redirect();
-        $params = $this->getRequestParams(request());
-        return Socialite::driver($provider)->with($params)->redirect();
+        return match ($provider) {
+            'github' => ['repo'],
+            default => [],
+        };
     }
 
-    public function callback(IdentityProviderService $providerService, $provider): RedirectResponse
+    private function getParams(Request $request, $provider): array
     {
-        $SPA_URL = config('app.frontend_url');
-
-        try {
-            $providerUser = Socialite::driver($provider)->user();
-            $authenticatableUser = $providerService->findOrCreate($providerUser, $provider);
-        } catch (InvalidStateException $e) {
-            $error = '&error=' . request()->has('error') ? Str::slug($e->getMessage()) : 'invalid-state';
-            $path = AuthRedirectProvider::getRoute(Auth::check() ? 'onAuthOnly' : 'onGuestOnly');
-            return redirect()->to($SPA_URL . $path . $error);
-        }
-
-        if (!Auth::check()) {
-            auth()->login($authenticatableUser, true);
-        }
-
-        $authenticatableUser->touch();
-        $redirectUrl = $SPA_URL . AuthRedirectProvider::getRoute('onLogin');
-        return redirect()->to($redirectUrl);
+        return match ($provider) {
+            'google' => $this->getGoogleParams($request),
+            default => [],
+        };
     }
 
-    private function getRequestParams($request): array
+    private function getGoogleParams($request): array
     {
         return $request->has('email')
             ? ['login_hint' => $request->get('email')]
