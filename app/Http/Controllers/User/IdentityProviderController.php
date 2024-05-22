@@ -84,8 +84,6 @@ class IdentityProviderController extends Controller
         return redirect()->to($redirectUrl);
     }
 
-
-
     private function getRequestParams($request): array
     {
         return $request->has('email')
