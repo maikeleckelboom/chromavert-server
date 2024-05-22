@@ -6,11 +6,9 @@ use App\Http\Resources\IdentityProviderResource;
 use App\Models\IdentityProvider;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Contracts\User as ProviderUser;
-use Laravel\Socialite\Two\InvalidStateException;
 use TaylorNetwork\UsernameGenerator\Facades\UsernameGenerator;
 
 class IdentityProviderService
@@ -21,27 +19,37 @@ class IdentityProviderService
         return collect($user->identityProviders)->map(fn($provider) => new IdentityProviderResource($provider));
     }
 
-    public function getProviderById($id)
+    public function findProviderForAuthUser($id)
     {
         return IdentityProvider::where('user_id', auth()->id())->findOrFail($id);
     }
 
-    public function getAuthenticatableUser(ProviderUser $providerUser, string $provider): Authenticatable
+    public function findOrCreate(ProviderUser $providerUser, $provider): User
     {
-        $identityProvider = $this->firstOrNew($provider, $providerUser);
-
-        if ($identityProvider->exists) {
-            return $identityProvider->user;
+        if (Auth::check()) {
+            $user = User::findOrFail(auth()->id());
+            $this->connect($user, $providerUser, $provider);
+            return $user;
         }
 
-        $user = User::firstOrNew(['email' => $providerUser->getEmail()]);
+        $authProvider = $this->firstOrNew($provider, $providerUser);
 
-        if(!$user->exists){
-            $this->fillInMissingProperties($user, $providerUser);
+        if ($authProvider->exists) {
+            return $authProvider->user;
         }
 
-        $identityProvider->user()->associate($user)->save();
-        event(new Registered($user));
+        $user = User::firstOrNew([
+            'email' => $providerUser->getEmail(),
+        ]);
+
+        if (!$user->exists) {
+            $user = $this->inheritMissingAttributes($user, $providerUser);
+            $user->save();
+
+            event(new Registered($user));
+        }
+
+        $authProvider->user()->associate($user)->save();
 
         return $user;
     }
@@ -55,9 +63,6 @@ class IdentityProviderService
             'provider_user_nickname' => $providerUser->getNickname(),
             'provider_user_avatar' => $providerUser->getAvatar(),
             'provider_user_email' => $providerUser->getEmail(),
-//            'provider_token' => $providerUser->token,
-//            'provider_refresh_token' => $providerUser->refreshToken,
-//            'provider_expires_in' => $providerUser->expiresIn,
         ]);
     }
 
@@ -67,7 +72,7 @@ class IdentityProviderService
         return $authProvider->delete();
     }
 
-    public function connect(User $user, ProviderUser $providerUser, $provider): void
+    private function connect(User $user, ProviderUser $providerUser, $provider): void
     {
         $authProvider = $this->firstOrNew($provider, $providerUser);
         $authProvider->user()->associate($user)->save();
@@ -76,7 +81,7 @@ class IdentityProviderService
         }
     }
 
-    private function fillInMissingProperties(User $user, ProviderUser $providerUser): void
+    private function inheritMissingAttributes(User $user, ProviderUser $providerUser): User
     {
         $user->username ??= UsernameGenerator::generate(
             $providerUser->getNickname() ?? $providerUser->getName()
@@ -84,6 +89,6 @@ class IdentityProviderService
         $user->email ??= $providerUser->getEmail();
         $user->name ??= $providerUser->getName();
         $user->profile_photo_path ??= $providerUser->getAvatar();
-        $user->save();
+        return $user;
     }
 }

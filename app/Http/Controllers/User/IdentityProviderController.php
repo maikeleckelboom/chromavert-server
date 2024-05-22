@@ -62,29 +62,25 @@ class IdentityProviderController extends Controller
         return Socialite::driver($provider)->with($params)->redirect();
     }
 
-    public function callback($provider,IdentityProviderService $providerService, UserService $userService): RedirectResponse
+    public function callback(IdentityProviderService $providerService, $provider): RedirectResponse
     {
         $SPA_URL = config('app.frontend_url');
-        $redirectUrl = $SPA_URL . AuthRedirectProvider::getRoute('onLogin');
 
         try {
             $providerUser = Socialite::driver($provider)->user();
+            $authenticatableUser = $providerService->findOrCreate($providerUser, $provider);
         } catch (InvalidStateException $e) {
             $error = '&error=' . request()->has('error') ? Str::slug($e->getMessage()) : 'invalid-state';
             $path = AuthRedirectProvider::getRoute(Auth::check() ? 'onAuthOnly' : 'onGuestOnly');
             return redirect()->to($SPA_URL . $path . $error);
         }
 
-        if(Auth::check()) {
-            // Connect the provider to the authenticated user
-            $user = $userService->getUserById(Auth::id());
-            $providerService->connect($user, $providerUser, $provider);
-        } else {
-            // Authenticate the user
-            $authenticatableUser = $providerService->getAuthenticatableUser($providerUser, $provider);
+        if (!Auth::check()) {
             auth()->login($authenticatableUser, true);
         }
 
+        $authenticatableUser->touch();
+        $redirectUrl = $SPA_URL . AuthRedirectProvider::getRoute('onLogin');
         return redirect()->to($redirectUrl);
     }
 
