@@ -25,7 +25,7 @@ class IdentityProviderController extends Controller
 
     public function disconnect(IdentityProviderService $providerService, $id): JsonResponse
     {
-        $providerUser = $providerService->getProviderById($id)->user;
+        $providerUser = $providerService->findProviderForAuthUser($id);
         $user = User::findOrFail($providerUser->id);
 
         if ($user->id !== auth()->id()) {
