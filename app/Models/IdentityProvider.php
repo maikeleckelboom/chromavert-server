@@ -23,6 +23,10 @@ class IdentityProvider extends Model
         'provider_user_name',
         'provider_user_nickname',
         'provider_user_avatar',
+        'token',
+        'approved_scopes',
+        'refresh_token',
+        'expires_at',
     ];
 
     public function user(): BelongsTo

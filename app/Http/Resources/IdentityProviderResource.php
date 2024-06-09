@@ -17,10 +17,14 @@ class IdentityProviderResource extends JsonResource
         return [
             'id' => $this->id,
             'provider' => $this->provider,
-            'name' => $this->provider_user_name,
-            'email' => $this->provider_user_email,
-            'username' => $this->provider_user_nickname,
-            'avatar' => $this->provider_user_avatar,
+            'name' => $this->user_name,
+            'email' => $this->user_email,
+            'username' => $this->user_nickname,
+            'avatar' => $this->user_avatar,
+            'token' => $this->token,
+            'approvedScopes' => $this->approved_scopes,
+            'refreshToken' => $this->refresh_token,
+            'expiresAt' => $this->expires_at,
             'createdAt' => $this->created_at->format('d M Y H:i'),
             'updatedAt' => $this->updated_at->diffForHumans(),
         ];

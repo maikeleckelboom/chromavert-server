@@ -59,10 +59,7 @@ class IdentityProviderController extends Controller
         $user = User::findOrFail($identityProvider->user->id);
 
         if ($user->id !== auth()->id()) {
-            return response()->json([
-                'message' => "You cannot disconnect other users' providers.",
-                'description' => 'The provider does not belong to the authenticated user.',
-            ], 403);
+            abort(403, 'You are not authorized to disconnect this provider.');
         }
 
         if ($this->willBeLockedOut($user)) {
@@ -80,9 +77,9 @@ class IdentityProviderController extends Controller
         };
 
         return response()->json([
-            'message' => 'The provider was not found.',
-            'description' => 'The provider does not exist.',
-        ], 404);
+            'message' => 'The provider could not be disconnected.',
+            'description' => 'The provider could not be disconnected.',
+        ], 400);
     }
 
 

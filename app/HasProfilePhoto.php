@@ -5,8 +5,6 @@ namespace App;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Drivers\Gd\Driver;
-use Intervention\Image\ImageManager;
 
 
 trait HasProfilePhoto
@@ -64,11 +62,9 @@ trait HasProfilePhoto
                 return $this->profile_photo_path;
             }
 
-            $resolvedUrl = $this->profile_photo_path
+            return $this->profile_photo_path
                 ? Storage::disk($this->profilePhotoDisk())->url($this->profile_photo_path)
                 : $this->defaultProfilePhotoUrl();
-
-            return $this->removeStoragePrefix($resolvedUrl);
         });
     }
 

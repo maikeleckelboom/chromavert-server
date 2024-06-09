@@ -1,12 +1,13 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\Auth\UpdatePasswordController;
+use App\Http\Controllers\User\GithubRepoController;
 use App\Http\Controllers\User\IdentityProviderController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\SessionController;
-use App\Http\Controllers\User\UpdatePasswordController;
 use App\Http\Controllers\User\UserController;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Route;
 
 require __DIR__ . '/auth.php';
 
@@ -23,6 +24,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/user/sessions', [SessionController::class, 'index']);
     Route::delete('/user/sessions/{id}', [SessionController::class, 'destroy']);
     Route::delete('/user/other-sessions', [SessionController::class, 'destroyOtherSessions']);
+
+    Route::get('/user/github-repos', [GithubRepoController::class, 'index']);
+
+    Route::get('/user/github-repos/callback', [GithubRepoController::class, 'redirect']);
 });
 
 
