@@ -70,14 +70,17 @@ class IdentityProviderController extends Controller
             return response()->json(['message' => 'The provider has been disconnected.'], 204);
         };
 
-        return response()->json(['message' => 'The provider could not be disconnected.'], 400);
+        return response()->json([
+            'message' => 'The provider could not be disconnected.',
+            'description' => 'The provider could not be disconnected.',
+        ], 400);
     }
 
 
     private function getScopes($provider): array
     {
         return match ($provider) {
-            'github' => ['repo'],
+            'github' => [/* repo */],
             default => [],
         };
     }

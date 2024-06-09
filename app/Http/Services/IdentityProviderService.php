@@ -9,7 +9,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Contracts\User as ProviderUser;
-use TaylorNetwork\UsernameGenerator\Generator;
+use TaylorNetwork\UsernameGenerator\Facades\UsernameGenerator;
 
 class IdentityProviderService
 {
@@ -24,7 +24,7 @@ class IdentityProviderService
         return IdentityProvider::where('user_id', auth()->id())->findOrFail($id);
     }
 
-    public function retrieveUser(ProviderUser $providerUser, $provider): User
+    public function findOrCreate(ProviderUser $providerUser, $provider): User
     {
         if (Auth::check()) {
             $user = User::findOrFail(auth()->id());
@@ -32,21 +32,14 @@ class IdentityProviderService
             return $user;
         }
 
-        return $this->firstOrCreate($providerUser, $provider);
-    }
-
-    public function firstOrCreate(ProviderUser $providerUser, $provider): User
-    {
         $identityProvider = $this->firstOrNew($provider, $providerUser);
 
-        if ($identityProvider->exists) {
-            return $identityProvider->user;
-        }
+        if ($identityProvider->exists) return $identityProvider->user;
 
         $user = User::firstOrNew(['email' => $providerUser->getEmail()]);
 
         if (!$user->exists) {
-            $user = $this->fillNullAttributes($user, $providerUser);
+            $user = $this->inheritMissingAttributes($user, $providerUser);
             event(new Registered($user));
         }
 
@@ -64,10 +57,6 @@ class IdentityProviderService
             'provider_user_nickname' => $providerUser->getNickname(),
             'provider_user_avatar' => $providerUser->getAvatar(),
             'provider_user_email' => $providerUser->getEmail(),
-            'token' => $providerUser->token,
-            'approved_scopes' => collect($providerUser->approvedScopes)->toJson(),
-            'refresh_token' => $providerUser->refreshToken,
-            'expires_at' => $providerUser->expiresIn ? now()->addSeconds($providerUser->expiresIn) : null,
         ]);
     }
 
@@ -86,10 +75,11 @@ class IdentityProviderService
         }
     }
 
-    private function fillNullAttributes(User $user, ProviderUser $providerUser): User
+    private function inheritMissingAttributes(User $user, ProviderUser $providerUser): User
     {
-        $seed = $providerUser->getNickname() ?? $providerUser->getName();
-        $user->username ??= (new Generator())->generate($seed);
+        $user->username ??= UsernameGenerator::generate(
+            $providerUser->getNickname() ?? $providerUser->getName()
+        );
         $user->email ??= $providerUser->getEmail();
         $user->name ??= $providerUser->getName();
         $user->profile_photo_path ??= $providerUser->getAvatar();
