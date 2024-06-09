@@ -30,7 +30,7 @@ class IdentityProvider extends Model
     ];
 
     protected $casts = [
-        'approved_scopes' => 'array',
+        'approved_scopes' => 'json',
         'expires_at' => 'datetime',
     ];
 
