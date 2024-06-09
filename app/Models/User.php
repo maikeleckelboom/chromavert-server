@@ -84,4 +84,6 @@ class User extends Authenticatable implements MustVerifyEmail
             ->where('provider_user_id', $providerUserId)
             ->exists();
     }
+
+    
 }

@@ -28,8 +28,7 @@ class IdentityProviderService
     {
         if (Auth::check()) {
             $user = User::findOrFail(auth()->id());
-            $this->connect($user, $providerUser, $provider);
-            return $user;
+            return $this->connect($user, $providerUser, $provider);
         }
 
         return $this->firstOrCreate($providerUser, $provider);
@@ -77,13 +76,11 @@ class IdentityProviderService
         return $authProvider->delete();
     }
 
-    private function connect(User $user, ProviderUser $providerUser, $provider): void
+    private function connect(User $user, ProviderUser $providerUser, $provider): User
     {
         $authProvider = $this->firstOrNew($provider, $providerUser);
         $authProvider->user()->associate($user)->save();
-        if ($authProvider->save()) {
-            $authProvider->touch();
-        }
+        return $user;
     }
 
     private function fillNullAttributes(User $user, ProviderUser $providerUser): User
