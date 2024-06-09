@@ -26,12 +26,14 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::delete('/user/sessions/{id}', [SessionController::class, 'destroy']);
     Route::delete('/user/other-sessions', [SessionController::class, 'destroyOtherSessions']);
 
-    Route::get('user/github/redirect', [RepoController::class, 'redirect']);
+
+    Route::get('user/github/{repo}/branches', [RepoContentController::class, 'branches']);
+    Route::get('user/github/{repo}/commits', [RepoContentController::class, 'commits']);
     Route::get('user/github/repos', [RepoController::class, 'index']);
+
     Route::get('user/github/{repo}', [RepoController::class, 'show']);
     Route::get('user/github/{repo}/contents', [RepoContentController::class, 'index']);
     Route::get('user/github/{repo}/contents/{path}', [RepoContentController::class, 'show']);
-    Route::get('user/github/{repo}/branches', [RepoContentController::class, 'branches']);
 });
 
 
