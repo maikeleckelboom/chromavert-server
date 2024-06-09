@@ -20,7 +20,7 @@ return new class extends Migration {
             $table->string('provider_user_avatar')->nullable();
             $table->string('provider_user_id');
             $table->string('token');
-            $table->json('approved_scopes')->nullable();
+            $table->jsonb('approved_scopes')->nullable();
             $table->string('refresh_token')->nullable();
             $table->timestamp('expires_at')->nullable();
             $table->unique(['provider', 'provider_user_id']);

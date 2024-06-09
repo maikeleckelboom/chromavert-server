@@ -56,8 +56,6 @@ class IdentityProviderService
 
     public function firstOrNew(string $provider, ProviderUser $providerUser): IdentityProvider
     {
-        $scopes = collect($providerUser->approvedScopes);
-
         return IdentityProvider::firstOrNew([
             'provider' => $provider,
             'provider_user_id' => $providerUser->getId(),
@@ -66,7 +64,7 @@ class IdentityProviderService
             'provider_user_avatar' => $providerUser->getAvatar(),
             'provider_user_email' => $providerUser->getEmail(),
             'token' => $providerUser->token,
-            'approved_scopes' => $scopes->count() > 0 ? $scopes : null,
+            'approved_scopes' => collect($providerUser->approvedScopes)->toArray() ?: null,
             'refresh_token' => $providerUser->refreshToken,
             'expires_at' => $providerUser->expiresIn ? now()->addSeconds($providerUser->expiresIn) : null,
         ]);
