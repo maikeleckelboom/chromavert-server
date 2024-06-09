@@ -1,7 +1,8 @@
 <?php
 
 use App\Http\Controllers\Auth\UpdatePasswordController;
-use App\Http\Controllers\User\GithubRepoController;
+use App\Http\Controllers\Github\RepoContentController;
+use App\Http\Controllers\Github\RepoController;
 use App\Http\Controllers\User\IdentityProviderController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\SessionController;
@@ -25,9 +26,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::delete('/user/sessions/{id}', [SessionController::class, 'destroy']);
     Route::delete('/user/other-sessions', [SessionController::class, 'destroyOtherSessions']);
 
-    Route::get('/user/github-repos', [GithubRepoController::class, 'index']);
-
-    Route::get('/user/github-repos/callback', [GithubRepoController::class, 'redirect']);
+    Route::get('user/github/repositories', [RepoController::class, 'index']);
+    Route::get('user/github/{repo}', [RepoController::class, 'show']);
+    Route::get('user/github/{repo}/contents', [RepoContentController::class, 'index']);
+    Route::get('user/github/{repo}/contents/{path}', [RepoContentController::class, 'show']);
+    Route::get('user/github/{repo}/branches', [RepoContentController::class, 'branches']);
 });
 
 

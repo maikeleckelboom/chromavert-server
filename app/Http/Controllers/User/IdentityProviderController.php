@@ -37,7 +37,7 @@ class IdentityProviderController extends Controller
 
         try {
             $providerUser = Socialite::driver($provider)->user();
-            $authenticatableUser = $providerService->findOrCreate($providerUser, $provider);
+            $authenticatableUser = $providerService->retrieveUser($providerUser, $provider);
         } catch (InvalidStateException $e) {
             $error = '&error=' . request()->has('error') ? Str::slug($e->getMessage()) : 'invalid-state';
             $path = AuthRedirectProvider::getRoute(Auth::check() ? 'onAuthOnly' : 'onGuestOnly');
@@ -63,23 +63,14 @@ class IdentityProviderController extends Controller
         }
 
         if ($this->willBeLockedOut($user)) {
-            return response()->json([
-                'message' => 'You cannot disconnect the last provider.',
-                'description' => 'You will be locked out if you disconnect this provider.',
-            ], 400);
+            return response()->json(['message' => 'You cannot disconnect the last provider.'], 400);
         }
 
         if ($providerService->disconnect($id)) {
-            return response()->json([
-                'message' => 'The provider has been disconnected.',
-                'description' => 'The provider has been successfully disconnected.',
-            ], 204);
+            return response()->json(['message' => 'The provider has been disconnected.'], 204);
         };
 
-        return response()->json([
-            'message' => 'The provider could not be disconnected.',
-            'description' => 'The provider could not be disconnected.',
-        ], 400);
+        return response()->json(['message' => 'The provider could not be disconnected.'], 400);
     }
 
 
