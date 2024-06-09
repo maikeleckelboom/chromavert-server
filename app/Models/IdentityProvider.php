@@ -29,6 +29,11 @@ class IdentityProvider extends Model
         'expires_at',
     ];
 
+    protected $casts = [
+        'approved_scopes' => 'array',
+        'expires_at' => 'datetime',
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
