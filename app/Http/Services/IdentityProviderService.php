@@ -49,6 +49,10 @@ class IdentityProviderService
             event(new Registered($user));
         }
 
+        if ($user->identityProviders()->where('provider', $provider)->exists()) {
+            return $user;
+        }
+
         $identityProvider->user()->associate($user)->save();
 
         return $user;
@@ -64,9 +68,9 @@ class IdentityProviderService
             'provider_user_avatar' => $providerUser->getAvatar(),
             'provider_user_email' => $providerUser->getEmail(),
             'token' => $providerUser->token,
-            'approved_scopes' => collect($providerUser->approvedScopes)->toJson() ?: null,
             'refresh_token' => $providerUser->refreshToken,
             'expires_at' => $providerUser->expiresIn ? now()->addSeconds($providerUser->expiresIn) : null,
+            'approved_scopes' => collect($providerUser->approvedScopes)->toJson() ?: null,
         ]);
     }
 

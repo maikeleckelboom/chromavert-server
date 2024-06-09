@@ -20,7 +20,9 @@ class RepoContentController extends Controller
         $response = Http::withToken($github->token)
             ->get("https://api.github.com/repos/{$github->provider_user_nickname}/{$name}/contents");
 
-        return response()->json($this->sortByFolderAndFile($response->json()));
+        $sortedResponse = $this->sort($response->json());
+
+        return response()->json($sortedResponse);
     }
 
     public function show(Request $request, $name, $fileOrFolder): JsonResponse
@@ -34,7 +36,9 @@ class RepoContentController extends Controller
         $response = Http::withToken($github->token)
             ->get("https://api.github.com/repos/{$github->provider_user_nickname}/{$name}/contents/{$fileOrFolder}");
 
-        return response()->json($response->json());
+        $sortedResponse = $this->sort($response->json());
+
+        return response()->json($sortedResponse);
     }
 
     public function path(Request $request, $name, $path): JsonResponse
@@ -48,7 +52,9 @@ class RepoContentController extends Controller
         $response = Http::withToken($github->token)
             ->get("https://api.github.com/repos/{$github->provider_user_nickname}/{$name}/contents/{$path}");
 
-        return response()->json($response->json());
+        $sortedResponse = $this->sort($response->json());
+
+        return response()->json($sortedResponse);
     }
 
     public function branches(Request $request, $repo): JsonResponse
@@ -62,7 +68,14 @@ class RepoContentController extends Controller
         $response = Http::withToken($github->token)
             ->get("https://api.github.com/repos/{$github->provider_user_nickname}/{$repo}/branches");
 
-        return response()->json($response->json());
+        $sortedResponse = $this->sort($response->json());
+
+        return response()->json($sortedResponse);
+    }
+
+    private function sort(array $repos): array
+    {
+        return $this->sortByFolderAndFile($this->sortAbc($repos));
     }
 
     private function sortByFolderAndFile(array $repos): array
@@ -79,5 +92,14 @@ class RepoContentController extends Controller
         }
 
         return array_merge($folders, $files);
+    }
+
+    private function sortAbc(array $repos): array
+    {
+        usort($repos, function ($a, $b) {
+            return strcmp($a['name'], $b['name']);
+        });
+
+        return $repos;
     }
 }

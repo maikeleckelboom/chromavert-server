@@ -26,7 +26,7 @@ class IdentityProviderController extends Controller
     public function redirect(string $provider): RedirectResponse
     {
         return Socialite::driver($provider)
-            ->scopes($this->getScopes($provider))
+            ->scopes($this->getScopes(request(), $provider))
             ->with($this->getParams(request(), $provider))
             ->redirect();
     }
@@ -68,19 +68,16 @@ class IdentityProviderController extends Controller
 
         if ($providerService->disconnect($id)) {
             return response()->json(['message' => 'The provider has been disconnected.'], 204);
-        };
+        }
 
-        return response()->json([
-            'message' => 'The provider could not be disconnected.',
-            'description' => 'The provider could not be disconnected.',
-        ], 400);
+        return response()->json(['message' => 'The provider could not be disconnected.'], 400);
     }
 
 
-    private function getScopes($provider): array
+    private function getScopes(Request $request, $provider): array
     {
         return match ($provider) {
-            'github' => [/* repo */],
+            'github' => [$request->has('repo') ? 'repo' : ''],
             default => [],
         };
     }
