@@ -27,16 +27,12 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::delete('/user/other-sessions', [SessionController::class, 'destroyOtherSessions']);
 
 
-    Route::get('user/github/repos', [RepoController::class, 'index']);
-    Route::get('user/github/repos/{repo}', [RepoController::class, 'show']);
-
-    Route::get('user/github/repos/{repo}/contents', [RepoContentController::class, 'paths']);
-    Route::get('user/github/repos/{repo}/contents/{path?}', [RepoContentController::class, 'paths'])
-        ->where('path', '.*');
-
-
-    Route::get('user/github/{repo}/branches', [RepoContentController::class, 'branches']);
-    Route::get('user/github/{repo}/commits', [RepoContentController::class, 'commits']);
+    Route::get('github/repos', [RepoController::class, 'index']);
+    Route::get('github/repos/{repo}', [RepoController::class, 'show']);
+    Route::get('github/repos/{repo}/contents', [RepoContentController::class, 'paths']);
+    Route::get('github/repos/{repo}/contents/{path?}', [RepoContentController::class, 'paths'])->where('path', '.*');
+    Route::get('github/repos/{repo}/branches', [RepoContentController::class, 'branches']);
+    Route::get('github/repos/{repo}/commits', [RepoContentController::class, 'commits']);
 });
 
 

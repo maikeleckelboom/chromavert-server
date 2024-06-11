@@ -56,7 +56,6 @@ class RepoContentController extends Controller
         $username = $github->provider_user_nickname;
         $path = implode('/', $paths) ?: null;
 
-
         $response = Http::withToken($github->token)
             ->get(
                 self::$api
@@ -74,30 +73,6 @@ class RepoContentController extends Controller
         }
 
         return response()->json($this->sort($response));
-    }
-
-    public function getLastCommitMessage(Request $request, $repo, $sha): JsonResponse
-    {
-        $github = $request
-            ->user()
-            ->identityProviders()
-            ->where('provider', 'github')
-            ->first();
-
-        $response = Http::withToken($github->token)
-            ->get(self::$api . "/{$github->provider_user_nickname}/{$repo}/commits/{$sha}")
-            ->json();
-
-        $lastCommitMessage = $response['commit']['message'];
-        $commitTime = $response['commit']['committer']['date'];
-        $branchUrl = $response['commit']['tree']['url'];
-        $branch = basename(dirname($branchUrl));
-
-        return response()->json([
-            'message' => $lastCommitMessage,
-            'time' => $commitTime,
-            'ref' => $branch
-        ]);
     }
 
     public function branches(Request $request, $repo): JsonResponse
