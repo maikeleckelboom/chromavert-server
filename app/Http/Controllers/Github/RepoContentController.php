@@ -33,6 +33,9 @@ class RepoContentController extends Controller
             ->where('provider', 'github')
             ->first();
 
+        // Have to replace $github->provider_user_nickname with real owner name
+        // Because the owner name is not always the same as the authenticated user
+        // For example, the authenticated user is a collaborator.
         $response = Http::withToken($github->token)
             ->get(self::$api . "/{$github->provider_user_nickname}/{$name}/contents")
             ->json();
@@ -51,10 +54,16 @@ class RepoContentController extends Controller
 
         $branch = $request->get('ref');
         $username = $github->provider_user_nickname;
-        $path = implode('/', $paths);
+        $path = implode('/', $paths) ?: null;
+
 
         $response = Http::withToken($github->token)
-            ->get(self::$api . "/{$username}/{$repo}/contents/{$path}" . ($branch ? "?ref={$branch}" : ""))
+            ->get(
+                self::$api
+                . "/{$username}/{$repo}/contents"
+                . ($path ? "/{$path}" : "")
+                . ($branch ? "?ref={$branch}" : "")
+            )
             ->json();
 
 
@@ -84,7 +93,11 @@ class RepoContentController extends Controller
         $branchUrl = $response['commit']['tree']['url'];
         $branch = basename(dirname($branchUrl));
 
-        return response()->json(['message' => $lastCommitMessage, 'time' => $commitTime, 'ref' => $branch]);
+        return response()->json([
+            'message' => $lastCommitMessage,
+            'time' => $commitTime,
+            'ref' => $branch
+        ]);
     }
 
     public function branches(Request $request, $repo): JsonResponse

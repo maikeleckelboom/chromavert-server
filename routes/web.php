@@ -30,7 +30,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('user/github/repos', [RepoController::class, 'index']);
     Route::get('user/github/repos/{repo}', [RepoController::class, 'show']);
 
-    Route::get('user/github/repos/{repo}/contents', [RepoContentController::class, 'repoContents']);
+    Route::get('user/github/repos/{repo}/contents', [RepoContentController::class, 'paths']);
     Route::get('user/github/repos/{repo}/contents/{path?}', [RepoContentController::class, 'paths'])
         ->where('path', '.*');
 
