@@ -49,12 +49,12 @@ class RepoContentController extends Controller
             ->where('provider', 'github')
             ->first();
 
-        $branch = $request->get('ref', 'main');
+        $branch = $request->get('ref');
         $username = $github->provider_user_nickname;
         $path = implode('/', $paths);
 
         $response = Http::withToken($github->token)
-            ->get(self::$api . "/{$username}/{$repo}/contents/{$path}?ref={$branch}")
+            ->get(self::$api . "/{$username}/{$repo}/contents/{$path}" . ($branch ? "?ref={$branch}" : ""))
             ->json();
 
 
