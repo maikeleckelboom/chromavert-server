@@ -3,50 +3,13 @@
 namespace App\Http\Controllers\Github;
 
 use App\Http\Controllers\Controller;
-use App\Models\IdentityProvider;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Laravel\Socialite\Facades\Socialite;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class RepoController extends Controller
 {
 
-    public function redirect(): RedirectResponse
-    {
-        return Socialite::driver('github')->scopes(['repo'])->redirect();
-    }
-
-    public function callback(): RedirectResponse
-    {
-        $user = Socialite::driver('github')->user();
-
-        $identityProvider = IdentityProvider::firstOrNew([
-            'provider' => 'github',
-            'provider_user_id' => $user->getId(),
-        ]);
-
-        $identityProvider->fill([
-            'provider_user_email' => $user->getEmail(),
-            'provider_user_name' => $user->getName(),
-            'provider_user_nickname' => $user->getNickname(),
-            'provider_user_avatar' => $user->getAvatar(),
-            'token' => $user->token,
-            'refresh_token' => $user->refreshToken,
-            'expires_at' => now()->addSeconds($user->expiresIn),
-        ]);
-
-        $identityProvider->user()->associate(auth()->user());
-        $identityProvider->save();
-
-        return redirect()->to(config('app.frontend_url') . '/github');
-    }
-
-    /**
-     * @throws ConnectionException
-     */
     public function index(Request $request): JsonResponse
     {
         $github = $request
@@ -63,7 +26,7 @@ class RepoController extends Controller
         return response()->json($sortedResponse);
     }
 
-    public function show(Request $request, $name): JsonResponse
+    public function show(Request $request, $repo): JsonResponse
     {
         $github = $request
             ->user()
@@ -72,11 +35,9 @@ class RepoController extends Controller
             ->first();
 
         $response = Http::withToken($github->token)
-            ->get("https://api.github.com/repos/{$github->provider_user_nickname}/{$name}");
+            ->get("https://api.github.com/repos/{$github->provider_user_nickname}/{$repo}");
 
-        $repo = $response->json();
-
-        return response()->json($repo);
+        return response()->json($response->json());
     }
 
     private function sortByMostRecent(array $repos): array

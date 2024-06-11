@@ -44,13 +44,13 @@ class IdentityProviderService
 
         $user = User::firstOrNew(['email' => $providerUser->getEmail()]);
 
+        if ($user->identityProviders()->where('provider', $provider)->exists()) {
+            return $user;
+        }
+
         if (!$user->exists) {
             $user = $this->fillNullAttributes($user, $providerUser);
             event(new Registered($user));
-        }
-
-        if ($user->identityProviders()->where('provider', $provider)->exists()) {
-            return $user;
         }
 
         $identityProvider->user()->associate($user)->save();
@@ -70,7 +70,7 @@ class IdentityProviderService
             'token' => $providerUser->token,
             'refresh_token' => $providerUser->refreshToken,
             'expires_at' => $providerUser->expiresIn ? now()->addSeconds($providerUser->expiresIn) : null,
-            'approved_scopes' => collect($providerUser->approvedScopes)->toJson() ?: null,
+            'approved_scopes' => collect($providerUser->approvedScopes)->toArray() ?: null,
         ]);
     }
 

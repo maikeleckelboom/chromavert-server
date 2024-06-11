@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Http;
 
 class RepoContentController extends Controller
 {
-    public function index(Request $request, $name): JsonResponse
+    static string $api = 'https://api.github.com/repos';
+
+    public function repo(Request $request, $repo): JsonResponse
     {
         $github = $request
             ->user()
@@ -18,14 +20,12 @@ class RepoContentController extends Controller
             ->first();
 
         $response = Http::withToken($github->token)
-            ->get("https://api.github.com/repos/{$github->provider_user_nickname}/{$name}/contents");
+            ->get(self::$api . "/{$github->provider_user_nickname}/{$repo}");
 
-        $sortedResponse = $this->sort($response->json());
-
-        return response()->json($sortedResponse);
+        return response()->json($response->json());
     }
 
-    public function show(Request $request, $name, $fileOrFolder): JsonResponse
+    public function repoContents(Request $request, $name): JsonResponse
     {
         $github = $request
             ->user()
@@ -34,14 +34,40 @@ class RepoContentController extends Controller
             ->first();
 
         $response = Http::withToken($github->token)
-            ->get("https://api.github.com/repos/{$github->provider_user_nickname}/{$name}/contents/{$fileOrFolder}");
+            ->get(self::$api . "/{$github->provider_user_nickname}/{$name}/contents")
+            ->json();
 
-        $sortedResponse = $this->sort($response->json());
 
-        return response()->json($sortedResponse);
+        return response()->json($this->sort($response));
     }
 
-    public function path(Request $request, $name, $path): JsonResponse
+    public function paths(Request $request, $repo, ...$paths): JsonResponse
+    {
+        $github = $request
+            ->user()
+            ->identityProviders()
+            ->where('provider', 'github')
+            ->first();
+
+        $branch = $request->get('ref', 'main');
+        $username = $github->provider_user_nickname;
+        $path = implode('/', $paths);
+
+        $response = Http::withToken($github->token)
+            ->get(self::$api . "/{$username}/{$repo}/contents/{$path}?ref={$branch}")
+            ->json();
+
+
+        if ($this->isFile($paths)) {
+            $response = collect($response);
+            $content = base64_decode($response->get('content'));
+            return response()->json($response->merge(['content' => $content])->toArray());
+        }
+
+        return response()->json($this->sort($response));
+    }
+
+    public function getLastCommitMessage(Request $request, $repo, $sha): JsonResponse
     {
         $github = $request
             ->user()
@@ -50,11 +76,15 @@ class RepoContentController extends Controller
             ->first();
 
         $response = Http::withToken($github->token)
-            ->get("https://api.github.com/repos/{$github->provider_user_nickname}/{$name}/contents/{$path}");
+            ->get(self::$api . "/{$github->provider_user_nickname}/{$repo}/commits/{$sha}")
+            ->json();
 
-        $sortedResponse = $this->sort($response->json());
+        $lastCommitMessage = $response['commit']['message'];
+        $commitTime = $response['commit']['committer']['date'];
+        $branchUrl = $response['commit']['tree']['url'];
+        $branch = basename(dirname($branchUrl));
 
-        return response()->json($sortedResponse);
+        return response()->json(['message' => $lastCommitMessage, 'time' => $commitTime, 'ref' => $branch]);
     }
 
     public function branches(Request $request, $repo): JsonResponse
@@ -66,19 +96,39 @@ class RepoContentController extends Controller
             ->first();
 
         $response = Http::withToken($github->token)
-            ->get("https://api.github.com/repos/{$github->provider_user_nickname}/{$repo}/branches");
+            ->get(self::$api . "/{$github->provider_user_nickname}/{$repo}/branches");
 
-        $sortedResponse = $this->sort($response->json());
 
-        return response()->json($sortedResponse);
+        return response()->json($response->json());
+    }
+
+    public function commits(Request $request, $repo): JsonResponse
+    {
+        $github = $request
+            ->user()
+            ->identityProviders()
+            ->where('provider', 'github')
+            ->first();
+
+        $response = Http::withToken($github->token)
+            ->get(self::$api . "/{$github->provider_user_nickname}/{$repo}/commits");
+
+        return response()->json($response->json());
+    }
+
+    private function isFile($paths): bool
+    {
+        return str_contains(end($paths), '.');
     }
 
     private function sort(array $repos): array
     {
-        return $this->sortByFolderAndFile($this->sortAbc($repos));
+        return $this->separateFolderAndFile(
+            $this->sortByMostRecent($repos)
+        );
     }
 
-    private function sortByFolderAndFile(array $repos): array
+    protected function separateFolderAndFile(array $repos): array
     {
         $folders = [];
         $files = [];
@@ -94,7 +144,7 @@ class RepoContentController extends Controller
         return array_merge($folders, $files);
     }
 
-    private function sortAbc(array $repos): array
+    protected function sortByMostRecent(array $repos): array
     {
         usort($repos, function ($a, $b) {
             return strcmp($a['name'], $b['name']);
