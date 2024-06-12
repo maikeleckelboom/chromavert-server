@@ -4,6 +4,8 @@ use App\Http\Controllers\Auth\UpdatePasswordController;
 use App\Http\Controllers\Github\RepoContentController;
 use App\Http\Controllers\Github\RepoController;
 use App\Http\Controllers\Github\RepoCSSFilesController;
+use App\Http\Controllers\Github\SearchGithubRepoController;
+use App\Http\Controllers\Github\UpdateRepoContentController;
 use App\Http\Controllers\User\IdentityProviderController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\SessionController;
@@ -34,6 +36,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('github/repos', [RepoController::class, 'index']);
     Route::get('github/repos/{repo}', [RepoController::class, 'show']);
     Route::get('github/repos/{repo}/contents/{path?}', [RepoContentController::class, 'paths'])->where('path', '.*');
+    Route::get('github/repos/{repo}/css', SearchGithubRepoController::class);
+
+    // update repo
+    Route::put('github/repos/{repo}/contents/{path?}', UpdateRepoContentController::class);
 
     Route::get('github/repos/{repo}/branches', [RepoContentController::class, 'branches']);
     Route::get('github/repos/{repo}/commits', [RepoContentController::class, 'commits']);

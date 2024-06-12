@@ -18,12 +18,29 @@ class RepoController extends Controller
             ->where('provider', 'github')
             ->first();
 
+        $params = [
+            'per_page' => $request->get('per_page', 30),
+            'page' => $request->get('page', 1),
+            'sort' => $request->get('sort', 'updated')
+        ];
+
         $response = Http::withToken($github->token)
-            ->get('https://api.github.com/user/repos');
+            ->get('https://api.github.com/user/repos', $params);
 
-        $sortedResponse = $this->sortByMostRecent($response->json());
+        $links = $response->header('Link') ?? null;
 
-        return response()->json($sortedResponse);
+        if (!is_null($links)) {
+            $links = explode(',', $links);
+            $links = collect($links)->mapWithKeys(function ($link) {
+                preg_match('/<(.*)>; rel="(.*)"/', $link, $matches);
+                return [$matches[2] => $matches[1]];
+            })->toArray();
+        }
+
+        return response()->json([
+            'data' => $response->json(),
+            'pagination' => $links
+        ]);
     }
 
     public function show(Request $request, $repo): JsonResponse
@@ -38,14 +55,5 @@ class RepoController extends Controller
             ->get("https://api.github.com/repos/{$github->provider_user_nickname}/{$repo}");
 
         return response()->json($response->json());
-    }
-
-    private function sortByMostRecent(array $repos): array
-    {
-        usort($repos, function ($a, $b) {
-            return strtotime($b['updated_at']) - strtotime($a['updated_at']);
-        });
-
-        return $repos;
     }
 }

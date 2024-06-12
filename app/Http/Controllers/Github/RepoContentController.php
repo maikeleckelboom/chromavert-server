@@ -11,39 +11,6 @@ class RepoContentController extends Controller
 {
     static string $api = 'https://api.github.com/repos';
 
-    public function repo(Request $request, $repo): JsonResponse
-    {
-        $github = $request
-            ->user()
-            ->identityProviders()
-            ->where('provider', 'github')
-            ->first();
-
-        $response = Http::withToken($github->token)
-            ->get(self::$api . "/{$github->provider_user_nickname}/{$repo}");
-
-        return response()->json($response->json());
-    }
-
-    public function repoContents(Request $request, $name): JsonResponse
-    {
-        $github = $request
-            ->user()
-            ->identityProviders()
-            ->where('provider', 'github')
-            ->first();
-
-        // Have to replace $github->provider_user_nickname with real owner name
-        // Because the owner name is not always the same as the authenticated user
-        // For example, the authenticated user is a collaborator.
-        $response = Http::withToken($github->token)
-            ->get(self::$api . "/{$github->provider_user_nickname}/{$name}/contents")
-            ->json();
-
-
-        return response()->json($this->sort($response));
-    }
-
     public function paths(Request $request, $repo, ...$paths): JsonResponse
     {
         $github = $request
