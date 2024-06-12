@@ -35,11 +35,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::get('github/repos', [RepoController::class, 'index']);
     Route::get('github/repos/{repo}', [RepoController::class, 'show']);
-    Route::get('github/repos/{repo}/contents/{path?}', [RepoContentController::class, 'paths'])->where('path', '.*');
-    Route::get('github/repos/{repo}/css', SearchGithubRepoController::class);
 
-    // update repo
-    Route::put('github/repos/{repo}/contents/{path?}', UpdateRepoContentController::class);
+    Route::get('github/repos/{repo}/css', SearchGithubRepoController::class);
+    Route::get('github/repos/{repo}/contents/{path?}', [RepoContentController::class, 'paths'])->where('path', '.*');
+    Route::put('github/repos/{repo}/contents/{path?}', UpdateRepoContentController::class)->where('path', '.*');
 
     Route::get('github/repos/{repo}/branches', [RepoContentController::class, 'branches']);
     Route::get('github/repos/{repo}/commits', [RepoContentController::class, 'commits']);
