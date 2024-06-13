@@ -29,7 +29,7 @@ class RepoController extends Controller
             ->get('https://api.github.com/user/repos', $params);
 
         $links = $response->header('Link') ?? null;
-
+        
         return response()->json([
             'data' => $response->json(),
             'links' => $links ? $this->parseLinks($links) : null
@@ -39,14 +39,12 @@ class RepoController extends Controller
     private function parseLinks(string $links): array
     {
         $links = explode(',', $links);
-        $pagination = [];
+        $parsed = [];
         foreach ($links as $link) {
-            $link = explode(';', $link);
-            $url = $this->replaceUrl(trim($link[0], '<>'));
-            $rel = trim($link[1], ' rel="');
-            $pagination[$rel] = $url;
+            preg_match('/<(.*)>; rel="(.*)"/', $link, $matches);
+            $parsed[$matches[2]] = $matches[1];
         }
-        return $pagination;
+        return $parsed;
     }
 
     private function replaceUrl(string $original, string $replace = ''): string
