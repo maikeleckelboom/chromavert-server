@@ -1,9 +1,10 @@
 <?php
 
 use App\Http\Controllers\Auth\UpdatePasswordController;
+use App\Http\Controllers\Github\CreateBranchController;
+use App\Http\Controllers\Github\CreatePullRequestController;
 use App\Http\Controllers\Github\RepoContentController;
 use App\Http\Controllers\Github\RepoController;
-use App\Http\Controllers\Github\RepoCSSFilesController;
 use App\Http\Controllers\Github\SearchGithubRepoController;
 use App\Http\Controllers\Github\UpdateRepoContentController;
 use App\Http\Controllers\User\IdentityProviderController;
@@ -30,18 +31,21 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::delete('/user/other-sessions', [SessionController::class, 'destroyOtherSessions']);
 
 
-    Route::get('github/repos/{repo}/css', RepoCSSFilesController::class);
+    Route::get('/user/repos', [RepoController::class, 'index']);
+    Route::get('/user/repos/{repo}', [RepoController::class, 'show']);
+
+    Route::post('/user/repos/{repo}/git/refs', CreateBranchController::class);
+
+    Route::post('/user/repos/{repo}/pulls', CreatePullRequestController::class);
 
 
-    Route::get('github/repos', [RepoController::class, 'index']);
-    Route::get('github/repos/{repo}', [RepoController::class, 'show']);
+    Route::get('/user/repos/{repo}/css', SearchGithubRepoController::class);
+    Route::get('/user/repos/{repo}/contents/{path?}', [RepoContentController::class, 'paths'])->where('path', '.*');
+    Route::put('/user/repos/{repo}/contents/{path?}', UpdateRepoContentController::class)->where('path', '.*');
 
-    Route::get('github/repos/{repo}/css', SearchGithubRepoController::class);
-    Route::get('github/repos/{repo}/contents/{path?}', [RepoContentController::class, 'paths'])->where('path', '.*');
-    Route::put('github/repos/{repo}/contents/{path?}', UpdateRepoContentController::class)->where('path', '.*');
 
-    Route::get('github/repos/{repo}/branches', [RepoContentController::class, 'branches']);
-    Route::get('github/repos/{repo}/commits', [RepoContentController::class, 'commits']);
+    Route::get('/user/repos/{repo}/branches', [RepoContentController::class, 'branches']);
+    Route::get('/user/repos/{repo}/commits', [RepoContentController::class, 'commits']);
 });
 
 
