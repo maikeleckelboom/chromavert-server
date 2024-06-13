@@ -29,7 +29,7 @@ class RepoController extends Controller
             ->get('https://api.github.com/user/repos', $params);
 
         $links = $response->header('Link') ?? null;
-        
+
         return response()->json([
             'data' => $response->json(),
             'links' => $links ? $this->parseLinks($links) : null
@@ -47,11 +47,6 @@ class RepoController extends Controller
         return $parsed;
     }
 
-    private function replaceUrl(string $original, string $replace = ''): string
-    {
-        return str_replace('https://api.github.com/', $replace, $original);
-    }
-
     /**
      * @throws ConnectionException
      */
@@ -66,24 +61,7 @@ class RepoController extends Controller
         $response = Http::withToken($github->token)
             ->get("https://api.github.com/repos/{$github->provider_user_nickname}/{$repo}");
 
-        if ($request->has('readme')) {
-            $readme = $this->getREADME($github->provider_user_nickname, $repo, $github->token);
-
-            return response()->json(
-                array_merge($response->json(), ['readme' => base64_decode($readme)])
-            );
-        }
-
         return response()->json($response->json());
     }
 
-    /**
-     * @throws ConnectionException
-     */
-    private function getREADME(string $username, string $repo, string $token): string
-    {
-        return Http::withToken($token)
-            ->get("https://api.github.com/repos/$username/$repo/readme")
-            ->json()['content'];
-    }
 }
