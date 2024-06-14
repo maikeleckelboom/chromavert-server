@@ -43,9 +43,4 @@ class SearchGithubController extends Controller
 
         return response()->json($response->json());
     }
-
-    private function sortByPath(array $source): array
-    {
-        return collect($source)->sortBy('path')->toArray();
-    }
 }

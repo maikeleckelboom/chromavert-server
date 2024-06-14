@@ -17,26 +17,28 @@ class RepoContentController extends Controller
      */
     public function paths(Request $request, $repo, ...$paths): JsonResponse
     {
-        $github = $request->user()->identityProviders()->where('provider', 'github')->first();
+        $github = $request
+            ->user()
+            ->identityProviders()
+            ->where('provider', 'github')
+            ->first();
 
         $branch = $request->get('ref');
         $username = $github->provider_user_nickname;
         $path = implode('/', $paths) ?: null;
 
-        $response = Http::withToken($github->token)->get(self::$GithubReposUrl . "/{$username}/{$repo}/contents" . ($path ? "/{$path}" : "") . ($branch ? "?ref={$branch}" : ""))->json();
+        $response = Http::withToken($github->token)
+            ->get(self::$GithubReposUrl
+                . "/{$username}/{$repo}/contents"
+                . ($path ? "/{$path}" : "")
+                . ($branch ? "?ref={$branch}" : "")
+            )->json();
 
         if ($this->isFilePath($paths)) {
             $response = collect($response);
-
-            if ($this->isFile($response->get('content'))) {
-                return response()->json([
-                    'type' => 'file',
-                    'content' => $response->get('content')
-                ]);
-            }
-
             $content = base64_decode($response->get('content'));
-            return response()->json($response->merge(['content' => $content])->toArray());
+            $result = $response->merge(['content' => $content])->toArray();
+            return response()->json($result);
         }
 
         return response()->json($this->separateFolderAndFile($response));
@@ -45,11 +47,6 @@ class RepoContentController extends Controller
     private function isFilePath($paths): bool
     {
         return str_contains(end($paths), '.');
-    }
-
-    private function isFile(string $content): bool
-    {
-        return str_contains($content, 'data:');
     }
 
     private function separateFolderAndFile(array $repos): array
@@ -70,9 +67,14 @@ class RepoContentController extends Controller
 
     public function branches(Request $request, $repo): JsonResponse
     {
-        $github = $request->user()->identityProviders()->where('provider', 'github')->first();
+        $github = $request
+            ->user()
+            ->identityProviders()
+            ->where('provider', 'github')
+            ->first();
 
-        $response = Http::withToken($github->token)->get(self::$GithubReposUrl . "/{$github->provider_user_nickname}/{$repo}/branches");
+        $response = Http::withToken($github->token)
+            ->get(self::$GithubReposUrl . "/{$github->provider_user_nickname}/{$repo}/branches");
 
 
         return response()->json($response->json());
@@ -80,10 +82,21 @@ class RepoContentController extends Controller
 
     public function commits(Request $request, $repo): JsonResponse
     {
-        $github = $request->user()->identityProviders()->where('provider', 'github')->first();
+        $github = $request
+            ->user()
+            ->identityProviders()
+            ->where('provider', 'github')
+            ->first();
 
-        $response = Http::withToken($github->token)->get(self::$GithubReposUrl . "/{$github->provider_user_nickname}/{$repo}/commits");
+        $response = Http::withToken($github->token)
+            ->get(self::$GithubReposUrl . "/{$github->provider_user_nickname}/{$repo}/commits");
 
         return response()->json($response->json());
+    }
+
+    private function isImage($content): bool
+    {
+        $ext = pathinfo($content, PATHINFO_EXTENSION);
+        return in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'avif', 'ico']);
     }
 }
