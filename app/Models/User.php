@@ -76,14 +76,4 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(IdentityProvider::class);
     }
-
-    public function hasProvider(string $provider, string $providerUserId): bool
-    {
-        return $this->identityProviders()
-            ->where('provider', $provider)
-            ->where('provider_user_id', $providerUserId)
-            ->exists();
-    }
-
-    
 }

@@ -5,7 +5,7 @@ use App\Http\Controllers\Github\CreateBranchController;
 use App\Http\Controllers\Github\CreatePullRequestController;
 use App\Http\Controllers\Github\RepoContentController;
 use App\Http\Controllers\Github\RepoController;
-use App\Http\Controllers\Github\SearchGithubRepoController;
+use App\Http\Controllers\Github\SearchGithubController;
 use App\Http\Controllers\Github\UpdateRepoContentController;
 use App\Http\Controllers\User\IdentityProviderController;
 use App\Http\Controllers\User\ProfileController;
@@ -31,6 +31,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::delete('/user/other-sessions', [SessionController::class, 'destroyOtherSessions']);
 
 
+
+    Route::get('/user/repos/search', [SearchGithubController::class, 'searchUserRepositories']);
+
     Route::get('/user/repos', [RepoController::class, 'index']);
     Route::get('/user/repos/{repo}', [RepoController::class, 'show']);
 
@@ -39,7 +42,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('/user/repos/{repo}/pulls', CreatePullRequestController::class);
 
 
-    Route::get('/user/repos/{repo}/css', SearchGithubRepoController::class);
+    Route::get('/user/repos/{repo}/css', [SearchGithubController::class, 'getRepoCSSFiles']);
     Route::get('/user/repos/{repo}/contents/{path?}', [RepoContentController::class, 'paths'])->where('path', '.*');
     Route::put('/user/repos/{repo}/contents/{path?}', UpdateRepoContentController::class)->where('path', '.*');
 
