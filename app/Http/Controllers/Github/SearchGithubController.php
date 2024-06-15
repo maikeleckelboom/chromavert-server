@@ -31,15 +31,16 @@ class SearchGithubController extends Controller
     /**
      * @throws ConnectionException
      */
-    public function getRepoCSSFiles(Request $request, $repo): JsonResponse
+    public function searchCodeInUserRepository(Request $request): JsonResponse
     {
         $github = $request->user()->identityProviders()->where('provider', 'github')->first();
 
-        $extensions = implode('+extension:', ['css', 'scss', 'sass', 'less', 'pcss']);
-        $query = "repo:{$github->provider_user_nickname}/{$repo}+extension:{$extensions}";
+        $query = $request->get('q');
+        $repo = $request->get('repo');
+        $username = $github->provider_user_nickname;
 
         $fetcher = Http::withToken($github->token);
-        $response = $fetcher->get(self::$GithubSearchUrl . "/code?q={$query}&sort=path");
+        $response = $fetcher->get(self::$GithubSearchUrl . "/code?q={$query}+repo:{$username}/{$repo}");
 
         return response()->json($response->json());
     }

@@ -65,6 +65,9 @@ class RepoContentController extends Controller
         return array_merge($folders, $files);
     }
 
+    /**
+     * @throws ConnectionException
+     */
     public function branches(Request $request, $repo): JsonResponse
     {
         $github = $request
@@ -80,6 +83,9 @@ class RepoContentController extends Controller
         return response()->json($response->json());
     }
 
+    /**
+     * @throws ConnectionException
+     */
     public function commits(Request $request, $repo): JsonResponse
     {
         $github = $request
@@ -94,7 +100,7 @@ class RepoContentController extends Controller
         return response()->json($response->json());
     }
 
-    private function isImage($content): bool
+    private function isImagePath($content): bool
     {
         $ext = pathinfo($content, PATHINFO_EXTENSION);
         return in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'avif', 'ico']);

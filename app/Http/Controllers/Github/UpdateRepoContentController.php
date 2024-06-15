@@ -17,14 +17,13 @@ class UpdateRepoContentController extends Controller
      */
     public function __invoke(Request $request, $repo, $path): JsonResponse
     {
-        $github = $request->user()->identityProviders()
-            ->where('provider', 'github')->first();
+        $github = $request->user()->identityProviders()->where('provider', 'github')->first();
+        $username = $github->provider_user_nickname;
 
-        $fetchService = Http::withToken($github->token);
+        $fetcher = Http::withToken($github->token);
+        $endpoint = self::$GithubReposUrl . "/{$username}/{$repo}/contents/{$path}";
 
-        $baseURL = self::$GithubReposUrl . "/{$github->provider_user_nickname}/{$repo}/contents/{$path}";
-
-        $response = $fetchService->put($baseURL, [
+        $response = $fetcher->put($endpoint, [
             'sha' => $request->get('sha'),
             'message' => $request->get('message'),
             'branch' => $request->get('branch', 'main'),

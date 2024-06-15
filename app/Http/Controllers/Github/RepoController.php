@@ -11,27 +11,25 @@ use Illuminate\Support\Facades\Http;
 class RepoController extends Controller
 {
 
+    /**
+     * @throws ConnectionException
+     */
     public function index(Request $request): JsonResponse
     {
-        $github = $request
-            ->user()
-            ->identityProviders()
-            ->where('provider', 'github')
-            ->first();
+        $github = $request->user()->identityProviders()->where('provider', 'github')->first();
 
-        $params = [
+        $fetcher = Http::withToken($github->token);
+
+        $response = $fetcher->get('https://api.github.com/user/repos', [
             'per_page' => $request->get('per_page', 30),
             'page' => $request->get('page', 1),
             'sort' => $request->get('sort', 'updated')
-        ];
-
-        $response = Http::withToken($github->token)
-            ->get('https://api.github.com/user/repos', $params);
+        ]);
 
         $links = $response->header('Link') ?? null;
 
         return response()->json([
-            'data' => $response->json(),
+            'items' => $response->json(),
             'links' => $links ? $this->parseLinks($links) : null
         ]);
     }
@@ -63,7 +61,5 @@ class RepoController extends Controller
 
         return response()->json($response->json());
     }
-
-
 
 }

@@ -38,11 +38,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/user/repos/{repo}', [RepoController::class, 'show']);
 
     Route::post('/user/repos/{repo}/git/refs', CreateBranchController::class);
-
     Route::post('/user/repos/{repo}/pulls', CreatePullRequestController::class);
 
-
-    Route::get('/user/repos/{repo}/css', [SearchGithubController::class, 'getRepoCSSFiles']);
     Route::get('/user/repos/{repo}/contents/{path?}', [RepoContentController::class, 'paths'])->where('path', '.*');
     Route::put('/user/repos/{repo}/contents/{path?}', UpdateRepoContentController::class)->where('path', '.*');
 
