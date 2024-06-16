@@ -64,18 +64,20 @@ class IdentityProviderService
         if ($identityProvider->exists) {
             return $identityProvider->user;
         }
+        $identityProvider = $this->firstOrNew($provider, $providerUser);
 
-        $user = User::where('email', $providerUser->getEmail())->firstOrCreate();
-
-        if (!$user->wasRecentlyCreated) {
+        $user = User::where('email', $providerUser->getEmail())->firstOrNew();
+        if (!$user->exists) {
             $user = $this->fillNullAttributes($user, $providerUser);
             event(new Registered($user));
         }
 
-        $identityProvider->user()->associate($user)->save();
+        if (!$user->identityProviders->contains($identityProvider)) {
+            $identityProvider->user()->associate($user)->save();
+        }
 
         return $user;
-//        $identityProvider = $this->firstOrNew($provider, $providerUser);
+
 //        if ($identityProvider->exists) return $identityProvider->user;
 //        $user = User::where('email', $providerUser->getEmail())->firstOrNew();
 //        if (!$user->exists) {
