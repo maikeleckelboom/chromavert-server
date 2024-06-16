@@ -64,28 +64,17 @@ class IdentityProviderService
         if ($identityProvider->exists) {
             return $identityProvider->user;
         }
-        $identityProvider = $this->firstOrNew($provider, $providerUser);
 
         $user = User::where('email', $providerUser->getEmail())->firstOrNew();
-        if (!$user->exists) {
-            $user = $this->fillNullAttributes($user, $providerUser);
-            event(new Registered($user));
+
+        if($user->exists) {
+            return $user;
         }
 
-        if (!$user->identityProviders->contains($identityProvider)) {
-            $identityProvider->user()->associate($user)->save();
-        }
-
+        $user = $this->fillNullAttributes($user, $providerUser);
+        $identityProvider->user()->associate($user)->save();
+        event(new Registered($user));
         return $user;
-
-//        if ($identityProvider->exists) return $identityProvider->user;
-//        $user = User::where('email', $providerUser->getEmail())->firstOrNew();
-//        if (!$user->exists) {
-//            $user = $this->fillNullAttributes($user, $providerUser);
-//            event(new Registered($user));
-//        }
-//        $identityProvider->user()->associate($user)->save();
-//        return $user;
     }
 
     private function fillNullAttributes(User $user, ProviderUser $providerUser): User
