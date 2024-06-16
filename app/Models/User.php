@@ -18,6 +18,7 @@ use TaylorNetwork\UsernameGenerator\GeneratesUsernames;
  * @method static findOrFail($id)
  * @method static firstOrNew(array $array)
  * @method static find(int $id)
+ * @method static where(string $string, string|null $getEmail)
  * @property int $id
  */
 class User extends Authenticatable implements MustVerifyEmail

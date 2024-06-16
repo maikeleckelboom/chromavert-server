@@ -34,23 +34,10 @@ class IdentityProviderService
         return $this->firstOrCreate($providerUser, $provider);
     }
 
-    public function firstOrCreate(ProviderUser $providerUser, $provider): User
+    private function connect(User $user, ProviderUser $providerUser, $provider): User
     {
-        $identityProvider = $this->firstOrNew($provider, $providerUser);
-
-        if ($identityProvider->exists) {
-            return $identityProvider->user;
-        }
-
-        $user = User::firstOrNew(['email' => $providerUser->getEmail()]);
-
-        if (!$user->exists) {
-            $user = $this->fillNullAttributes($user, $providerUser);
-            event(new Registered($user));
-        }
-
-        $identityProvider->user()->associate($user)->save();
-
+        $authProvider = $this->firstOrNew($provider, $providerUser);
+        $authProvider->user()->associate($user)->save();
         return $user;
     }
 
@@ -70,17 +57,33 @@ class IdentityProviderService
         ]);
     }
 
-    public function disconnect($id): bool
+    public function firstOrCreate(ProviderUser $providerUser, $provider): User
     {
-        $authProvider = IdentityProvider::findOrFail($id);
-        return $authProvider->delete();
-    }
+        $identityProvider = $this->firstOrNew($provider, $providerUser);
 
-    private function connect(User $user, ProviderUser $providerUser, $provider): User
-    {
-        $authProvider = $this->firstOrNew($provider, $providerUser);
-        $authProvider->user()->associate($user)->save();
+        if ($identityProvider->exists) {
+            return $identityProvider->user;
+        }
+
+        $user = User::where('email', $providerUser->getEmail())->firstOrCreate();
+
+        if (!$user->wasRecentlyCreated) {
+            $user = $this->fillNullAttributes($user, $providerUser);
+            event(new Registered($user));
+        }
+
+        $identityProvider->user()->associate($user)->save();
+
         return $user;
+//        $identityProvider = $this->firstOrNew($provider, $providerUser);
+//        if ($identityProvider->exists) return $identityProvider->user;
+//        $user = User::where('email', $providerUser->getEmail())->firstOrNew();
+//        if (!$user->exists) {
+//            $user = $this->fillNullAttributes($user, $providerUser);
+//            event(new Registered($user));
+//        }
+//        $identityProvider->user()->associate($user)->save();
+//        return $user;
     }
 
     private function fillNullAttributes(User $user, ProviderUser $providerUser): User
@@ -92,5 +95,11 @@ class IdentityProviderService
         $user->profile_photo_path ??= $providerUser->getAvatar();
         $user->save();
         return $user;
+    }
+
+    public function disconnect($id): bool
+    {
+        $authProvider = IdentityProvider::findOrFail($id);
+        return $authProvider->delete();
     }
 }
