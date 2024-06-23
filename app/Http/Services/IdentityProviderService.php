@@ -26,19 +26,7 @@ class IdentityProviderService
 
     public function retrieveUser(ProviderUser $providerUser, $provider): User
     {
-        if (Auth::check()) {
-            $user = User::findOrFail(auth()->id());
-            return $this->connect($user, $providerUser, $provider);
-        }
-
         return $this->firstOrCreate($providerUser, $provider);
-    }
-
-    private function connect(User $user, ProviderUser $providerUser, $provider): User
-    {
-        $authProvider = $this->firstOrNew($provider, $providerUser);
-        $authProvider->user()->associate($user)->save();
-        return $user;
     }
 
     public function firstOrNew(string $provider, ProviderUser $providerUser): IdentityProvider
@@ -53,7 +41,7 @@ class IdentityProviderService
             'token' => $providerUser->token,
             'refresh_token' => $providerUser->refreshToken,
             'expires_at' => $providerUser->expiresIn ? now()->addSeconds($providerUser->expiresIn) : null,
-            'approved_scopes' => collect($providerUser->approvedScopes)->toJson() ?: null,
+            'approved_scopes' => collect($providerUser->approvedScopes)->toJson()
         ]);
     }
 
