@@ -8,7 +8,9 @@
 /vendor
 .env
 .env.backup
+.env.staging
 .env.production
+.env.production.example
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
